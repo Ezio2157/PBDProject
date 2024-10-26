@@ -1,14 +1,14 @@
 import oracledb as PBD
 
 # Función para conectar a la base de datos
-def dbConectar():
+def dbConectarOracle():
     ip = "localhost"
     puerto = 1521
     s_id = "xe"
     usuario = "system"
     contrasena = "12345"
 
-    print("---dbConectar---")
+    print("---dbConectarOracle---")
     print("---Conectando a Oracle---")
 
     try:
@@ -25,6 +25,8 @@ def dbDesconectar(conexion):
     print("---dbDesconectar---")
     try:
         if conexion:  # Verifica que la conexión no sea None
+            conexion.commit()  # Confirma los cambios
+
             conexion.close()
             print("Desconexión realizada correctamente")
             return True
@@ -37,7 +39,7 @@ def dbDesconectar(conexion):
         return False
 
 # Función para la configuración de tablas
-def configuracionTablas(conexion):
+def configuracionTablas_oracle(conexion):
     print("---configuracionTablas---")
     try:
         cursor = conexion.cursor()
@@ -64,18 +66,18 @@ def configuracionTablas(conexion):
         # Insertar usuarios de ejemplo solo si la tabla está vacía
         cursor.execute("SELECT COUNT(*) FROM Usuarios")
         count = cursor.fetchone()[0]
+        print("Usuarios en la tabla:", count)
         if count == 0:
             usuarios_ejemplo = [
                 ("admin", "password123"),
                 ("user1", "password1"),
                 ("user2", "password2")
             ]
-            cursor.executemany("INSERT INTO Usuarios (username, password) VALUES (:1, :2)", usuarios_ejemplo)
+            cursor.executemany("INSERT INTO Usuarios (username, password) VALUES (:user, :pass)", usuarios_ejemplo)
             print("Usuarios de ejemplo insertados correctamente.")
         else:
             print("La tabla Usuarios ya contiene datos.")
 
-        conexion.commit()  # Confirma los cambios
         cursor.close()
         print("Tabla 'Usuarios' creada o verificada exitosamente")
         return True
@@ -85,19 +87,20 @@ def configuracionTablas(conexion):
         return False
 
 # Función de autenticación
-def login_seguro(username, password):
+def login_seguro_oracle(username, password):
     print("---login---")
-    conexion = dbConectar()  # Abre la conexión para autenticación
+    print("login_seguro")
+    conexion = dbConectarOracle()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
 
     try:
         cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM Usuarios WHERE username = :1 AND password = :2", (username, password))
+        cursor.execute("SELECT * FROM Usuarios WHERE username = :user AND password = :pass", (username, password))
         usuario = cursor.fetchone()
         cursor.close()
-        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
             return True
@@ -107,14 +110,15 @@ def login_seguro(username, password):
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
-        dbDesconectar(conexion)
+        #dbDesconectar(conexion)
         return False
 
 
 # Función de autenticación insegura
-def login_inseguro_base(username, password):
+def login_inseguro_base_oracle(username, password):
     print("---login---")
-    conexion = dbConectar()  # Abre la conexión para autenticación
+    print("login_inseguro_base")
+    conexion = dbConectarOracle()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
@@ -125,19 +129,20 @@ def login_inseguro_base(username, password):
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
         cursor.close()
-        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         return usuario
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
-        dbDesconectar(conexion)
+        #dbDesconectar(conexion)
         return False
 
 
 # Login inseguro para blind por tiempo
-def login_inseguro_time(username, password):
+def login_inseguro_time_oracle(username, password):
     print("---login---")
-    conexion = dbConectar()  # Abre la conexión para autenticación
+    print("login_inseguro_time")
+    conexion = dbConectarOracle()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
@@ -148,7 +153,7 @@ def login_inseguro_time(username, password):
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
         cursor.close()
-        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
             return True
@@ -158,14 +163,15 @@ def login_inseguro_time(username, password):
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
-        dbDesconectar(conexion)
+        #dbDesconectar(conexion)
         return False
 
 
-# Login inseguro para blind por errores
-def login_inseguro_errors(username, password):
+# Login inseguro para errores
+def login_inseguro_errors_oracle(username, password):
     print("---login---")
-    conexion = dbConectar()  # Abre la conexión para autenticación
+    print ("---login_inseguro_errors---")
+    conexion = dbConectarOracle()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
@@ -175,14 +181,15 @@ def login_inseguro_errors(username, password):
         sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
+
         cursor.close()
         dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
-            return True
+            return usuario
         else:
             print("Usuario o contraseña incorrectos")
-            return False
+            return usuario
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)

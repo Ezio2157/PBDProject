@@ -12,13 +12,12 @@
         <p>Bienvenido al laboratorio. Aquí puedes probar diferentes tipos de SQL Injection en bases de datos Oracle y PostgreSQL.</p>
 
         <div class="card-grid">
-            {% for sqli in sql_injections %}
+            {% for tipo, sqli in sql_injections.items() %}
             <div class="card">
-                <h2>{{ sqli['name'] }}</h2>
-                <p>{{ sqli['description'] }}</p>
+                <h2>{{ sqli['title'] }}</h2>
                 <div class="buttons">
-                    <a href="{{ url_for(sqli['route_oracle']) }}" class="btn oracle">Oracle</a>
-                    <a href="{{ url_for(sqli['route_postgres']) }}" class="btn postgres">PostgreSQL</a>
+                    <a href="{{ url_for('login_oracle', tipo_sqli=tipo) }}" class="btn oracle">Oracle</a>
+                    <a href="{{ url_for('login_postgres', tipo_sqli=tipo) }}" class="btn postgres">PostgreSQL</a>
                 </div>
             </div>
             {% endfor %}

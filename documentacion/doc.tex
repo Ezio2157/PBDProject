@@ -1,0 +1,121 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc} % Ensure the file is saved with UTF-8 encoding
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}  % Para escribir en español
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{graphicx}  % Para insertar imágenes
+\usepackage{geometry}  % Para ajustar los márgenes
+\usepackage{titling}   % Para personalizar el título
+\usepackage{setspace}  % Para ajustar el espaciado
+\usepackage{fancyhdr}
+\usepackage{xcolor}    % Para cambiar el color de la línea del encabezado
+\usepackage{listings}
+\usepackage{soul}
+\usepackage{caption}
+\usepackage{wrapfig}
+\usepackage{longtable}  % Para dividir en varias páginas
+\usepackage{float}  % Ayuda con los entornos flotantes
+\usepackage[absolute,overlay]{textpos}
+\usepackage[hidelinks]{hyperref}
+\geometry{top=2cm,bottom=2cm,left=2cm,right=2cm}  % Márgenes personalizados
+
+\definecolor{mybeige}{RGB}{245, 245, 200}
+\definecolor{lightblue}{RGB}{173, 216, 230}
+\definecolor{lightgray}{RGB}{240, 240, 240}
+
+% Configuración del encabezado
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\includegraphics[height=1.5cm]{Imagenes/logounex.png}}  % Imagen a la izquierda
+\fancyhead[C]{\raisebox{0.3cm}{\shortstack{Programación en Bases de Datos \\ Práctica 2c: DataFrame en Pandas}}}  % Texto en el centro
+\fancyhead[R]{\includegraphics[height=1.5cm]{Imagenes/logopoli.png}}  % Imagen a la derecha
+\renewcommand{\headrulewidth}{0.4pt}  % Línea debajo del encabezado
+\setlength{\headheight}{1.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\TPHorizModule}{1cm}
+\setlength{\TPVertModule}{1cm}
+
+% Configuración del pie de página
+\fancyfoot[L]{\textit{Universidad de Extremadura}}  % Texto a la izquierda
+\fancyfoot[C]{\thepage}  % Número de página en el centro
+\fancyfoot[R]{\textit{Curso 2024-2025}}  % Texto a la derecha
+\renewcommand{\footrulewidth}{0.4pt}  % Línea encima del pie de página
+\setlength{\footskip}{0cm}
+
+% Configuración del entorno listings para resaltar el código Python
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{mybeige},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green},
+    stringstyle=\color{red},
+    frame=single,
+    rulecolor=\color{black},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    tabsize=4,
+    breaklines=true,
+    breakatwhitespace=false,
+    escapeinside={(*@}{@*)}
+}
+
+\lstdefinestyle{console}{
+    backgroundcolor=\color{lightgray}, % Color de fondo
+    basicstyle=\ttfamily\small,        % Fuente monoespaciada y tamaño pequeño
+    breaklines=true,                   % Permitir saltos de línea
+    stringstyle=\color{black},
+    frame=single,                      % Marco alrededor del código
+    framerule=0.5pt,                   % Grosor del marco
+    rulecolor=\color{black},           % Color del marco
+    xleftmargin=0.5cm,                 % Margen izquierdo
+    xrightmargin=0.5cm,                % Margen derecho
+    aboveskip=1em,                     % Espacio antes del bloque
+    belowskip=1em,                     % Espacio después del bloque
+    escapeinside={(*@}{@*)}
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+
+    % Imagen de la portada (fotoportada)
+    \includegraphics[width=1\textwidth]{Imagenes/fotoportada.jpg} % Asegúrate de que el archivo esté en la misma carpeta
+
+    \vspace{1cm}
+
+    % Título
+    {\Huge \textbf{Programación en Bases de Datos} \par}
+
+    \vspace{0.3cm}
+
+    % Línea de separación
+    \rule{\linewidth}{0.1mm}
+
+    \vspace{0.3cm}
+
+    % Subtítulo
+    {\LARGE \textbf{Práctica 2c: DataFrame en Pandas} \par}
+
+    \vspace{1.5cm}
+
+    % Logo de la universidad (logounex)
+    \includegraphics[width=0.25\textwidth]{Imagenes/logounex.png} % Asegúrate de que el archivo esté en la misma carpeta
+
+    \vfill
+
+    % Autor
+    {\small \textbf{David Gordillo Burrero} \par}
+
+\end{titlepage}
+
+\newpage
+
+\begin{center}
+    \renewcommand{\contentsname}{Índice de contenidos}\tableofcontents
+\end{center}
+
+\end{document}

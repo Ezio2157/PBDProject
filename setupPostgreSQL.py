@@ -1,7 +1,7 @@
 
 import psycopg2 as PBD
 
-def dbConectar():
+def dbConectarPostgreSQL():
     ip = "localhost"
     puerto = 5432
     basedatos = "Empresa"
@@ -9,7 +9,7 @@ def dbConectar():
     usuario = "postgres"
     contrasena = "12345"
 
-    print("---dbConectar---")
+    print("---dbConectarPostgreSQL---")
     print("---Conectando a Postgresql---")
 
     try:
@@ -23,10 +23,10 @@ def dbConectar():
 
 #-------------------------------------------------------------------
 
-def dbDesconectar():
+def dbDesconectar(conexion):
     print("---dbDesconectar---")
     try:
-        #conexion.commit()
+        conexion.commit()  # Confirma los cambios
         conexion.close()
         print("Desconexión realizada correctamente")
         return True
@@ -77,9 +77,9 @@ def configuracion_tablas_postgresql(conexion):
 
 #-------------------------------------------------------------------
 
-def login_seguro(username, password):
+def login_seguro_postgresql(username, password):
     print("---login---")
-    conexion = dbConectar()  # Abre la conexión para autenticación
+    conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
@@ -106,9 +106,9 @@ def login_seguro(username, password):
 #-------------------------------------------------------------------
 
 # Función de autenticación insegura simple
-def login_inseguro_base(username, password):
+def login_inseguro_base_postgresql(username, password):
     print("---login---")
-    conexion = dbConectar()  # Abre la conexión para autenticación
+    conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
@@ -131,3 +131,61 @@ def login_inseguro_base(username, password):
         print(error)
         dbDesconectar(conexion)
         return False
+
+#-------------------------------------------------------------------
+
+# Login inseguro para blind por tiempo
+def login_inseguro_time_postgresql(username, password):
+    print("---login---")
+    conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    try:
+        cursor = conexion.cursor()
+        sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+        cursor.close()
+        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return True
+        else:
+            print("Usuario o contraseña incorrectos")
+            return False
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario")
+        print(error)
+        dbDesconectar(conexion)
+        return False
+
+#-------------------------------------------------------------------
+
+# Login inseguro para blind por errores
+def login_inseguro_errors_postgresql(username, password):
+    print("---login---")
+    conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    try:
+        cursor = conexion.cursor()
+        sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+        cursor.close()
+        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return True
+        else:
+            print("Usuario o contraseña incorrectos")
+            return False
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario")
+        print(error)
+        dbDesconectar(conexion)
+        return error

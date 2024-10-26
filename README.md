@@ -14,9 +14,11 @@ Asegúrate de tener instalados los siguientes componentes:
 
 Este proyecto utiliza las siguientes librerías de Python. Las versiones están especificadas en el archivo `requirements.txt`:
 
-- Flask 2.3.2
-- oracledb 1.1.0
-- psycopg2 2.9.7
+- Flask 2.2.0
+- werkzeug 2.2.0
+- oracledb
+- psycopg2
+
 
 Para instalar las dependencias, ejecuta el siguiente comando:
 
