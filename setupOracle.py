@@ -73,7 +73,7 @@ def configuracionTablas_oracle(conexion):
                 ("user1", "password1"),
                 ("user2", "password2")
             ]
-            cursor.executemany("INSERT INTO Usuarios (username, password) VALUES (:user, :pass)", usuarios_ejemplo)
+            cursor.executemany("INSERT INTO Usuarios (username, password) VALUES (:username, :password)", usuarios_ejemplo)
             print("Usuarios de ejemplo insertados correctamente.")
         else:
             print("La tabla Usuarios ya contiene datos.")
@@ -122,20 +122,21 @@ def login_inseguro_base_oracle(username, password):
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
+    sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
 
     try:
         cursor = conexion.cursor()
-        sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
         cursor.close()
         #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
-        return usuario
+        obj_resultado = {"resultado":usuario, "sentencia":sentencia}
+        return obj_resultado
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
         #dbDesconectar(conexion)
-        return False
+        return {"resultado":error, "sentencia":sentencia}
 
 
 # Login inseguro para blind por tiempo
@@ -147,24 +148,24 @@ def login_inseguro_time_oracle(username, password):
         print("Error: no se pudo conectar para autenticar.")
         return False
 
+    sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
     try:
         cursor = conexion.cursor()
-        sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
         cursor.close()
         #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
-            return True
+            return {"resultado":usuario,"sentencia":sentencia}
         else:
             print("Usuario o contraseña incorrectos")
-            return False
+            return {"sentencia":sentencia}
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
         #dbDesconectar(conexion)
-        return False
+        return {"sentencia":sentencia}
 
 
 # Login inseguro para errores
@@ -176,9 +177,9 @@ def login_inseguro_errors_oracle(username, password):
         print("Error: no se pudo conectar para autenticar.")
         return False
 
+    sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
     try:
         cursor = conexion.cursor()
-        sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
 
@@ -186,12 +187,12 @@ def login_inseguro_errors_oracle(username, password):
         dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
-            return usuario
+            return {"resultado":usuario,"sentencia":sentencia}
         else:
             print("Usuario o contraseña incorrectos")
-            return usuario
+            return {"sentencia":sentencia}
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
         dbDesconectar(conexion)
-        return error
+        return {"resultado":error, "sentencia":sentencia}

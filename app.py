@@ -109,13 +109,21 @@ def login_sqli(tipo_sqli, database):
         password = request.form.get('password')
 
         # Llama a la función de autenticación insegura
-        resultado_sentencia = auth_function(username, password)
-        if resultado_sentencia:
-            session['user'] = username
-            flash(str(resultado_sentencia),category='Correcto')
+        result = auth_function(username, password)
+        print("result en app.py",result)
+        if result:
+            # Enviamos el resultado de la sentencia (no existe resultado en caso de error en las blind)
+            if 'resultado' in result:
+                flash(str(result['resultado']),category='Resultado')
+
+            # Creamos card para mostrar la sentencia
+            cardSentencia = dynamic_html.generarTarjetaInformacion("Sentencia SQL",
+                                        "Sentencia SQL ejecutada:", result['sentencia'])
+            print("cardSentencia",cardSentencia)
+            flash(cardSentencia,category='Sentencia')
             #return resultado_sentencia
         else:
-            flash(str(resultado_sentencia), "error")
+            flash(str(result), "error")
             return redirect(url_for(f'login_{database.lower()}', tipo_sqli=tipo_sqli))
 
     # Renderiza login.html con el contenido dinámico del SQL Injection

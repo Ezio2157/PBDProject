@@ -20,6 +20,7 @@ body {
 
 /* Sección izquierda: Contenedor del login */
 .login-section {
+    /*background: linear-gradient(135deg, #1a1a1a, #4d4d4d);*/
     background-color: #007bff;
     color: white;
     width: 40%;
@@ -30,8 +31,8 @@ body {
 
 /* Caja del login */
 .login-box {
-    width: 80%;
-    max-width: 300px;
+    width: 90%;
+    max-width: 400px;
     padding: 20px;
     background-color: #ffffff;
     color: #333;
@@ -80,8 +81,8 @@ body {
 .flash-messages {
     margin-bottom: 15px;
     padding: 10px;
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #cce7ff;;
+    color: #002b3f;
     border-radius: 4px;
 }
 

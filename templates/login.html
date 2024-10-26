@@ -5,41 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} - {{ database }}</title>
     <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles_TarjetaInfo.css">
 </head>
 <body>
-    <div class="main-container">
+<div class="main-container">
 
-        <!-- Sección izquierda: Formulario de inicio de sesión -->
-        <div class="login-section">
-            <div class="login-box">
-                <h2>Anti SQLI S.L. - {{ database }}</h2>
-                <p>Inicia sesión para acceder a tu cuenta en la base de datos {{ database }}</p>
-
-                <!-- Bloque para mostrar mensajes de error -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        <div class="flash-messages">
-                            {% for category, message in messages %}
-                                <p class="{{ category }}">{{ message }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
-
-                <form method="post">
-                    <input type="text" name="username" placeholder="Usuario" required>
-                    <input type="password" name="password" placeholder="Contraseña" required>
-                    <button type="submit">Iniciar sesión</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Sección derecha: Documento explicativo dinámico -->
-        <div class="info-section">
-            <h2>{{ title }}</h2>
-            <div>{{ description | safe }}</div> <!-- Muestra la descripción específica del SQL Injection -->
-        </div>
-
+    <!-- Sección izquierda: Formulario de inicio de sesión -->
+    <div class="return-btn-wrapper">
+        <a href="/index" class="elegant-return-btn" id="uniqueReturnButton">Volver</a>
     </div>
+    <div class="login-section">
+        <div class="login-box">
+            <h2>Anti SQLI S.L. - {{ database }}</h2>
+            <p>Inicia sesión para acceder a tu cuenta en la base de datos {{ database }}</p>
+
+            <!-- Bloque para mostrar mensajes de error -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            {% if category == 'Resultado' %}
+                                <p class="{{ category }}">{{ message }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="post">
+                <input type="text" name="username" placeholder="Usuario" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <button type="submit">Iniciar sesión</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sección derecha: Documento explicativo dinámico -->
+    <div class="info-section">
+        <h2>{{ title }}</h2>
+        <div>{{ description | safe }}</div> <!-- Muestra la descripción específica del SQL Injection -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'Sentencia' %}
+                        <div id="s">{{ message | safe }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+</div>
 </body>
 </html>

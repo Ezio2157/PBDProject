@@ -14,11 +14,9 @@
     width: 100%;
     max-width: 600px;
     transition: transform 0.3s ease;
+    margin-top: 20px;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-}
 
 .card-header {
     background-color: #007bff;
@@ -29,6 +27,7 @@
 .card-header h2 {
     margin: 0;
     font-size: 1.5em;
+    color: #ffffff;
 }
 
 .card-body {
@@ -80,6 +79,13 @@
     font-style: italic;
 }
 
+
+/* Estilos para comentarios SQL */
+.sql-comment {
+    color: #7F8C8D; /* Gris */
+    font-style: italic;
+}
+
 @media (max-width: 480px) {
     .card-header h2 {
         font-size: 1.2em;
@@ -94,6 +100,52 @@
     }
 
     .code-block code {
+        font-size: 12px;
+    }
+}
+
+
+.return-btn-wrapper {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.elegant-return-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: white;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.elegant-return-btn:hover {
+    background-color: #f8f8f8;
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.elegant-return-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+}
+
+
+@media (max-width: 768px) {
+    .return-btn-wrapper {
+        top: 10px;
+        left: 10px;
+    }
+
+    .elegant-return-btn {
+        padding: 8px 12px;
         font-size: 12px;
     }
 }
