@@ -76,3 +76,15 @@ button[type="submit"]:hover {
 .footer a:hover {
     text-decoration: underline;
 }
+
+.flash-messages {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #e74c3c;
+    background-color: #f2dede;
+    color: #a94442;
+    border-radius: 5px;
+}
+.error {
+    font-weight: bold;
+}

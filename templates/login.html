@@ -1,21 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Empresa PBD</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="login-container">
-        <h2>Bienvenido a Empresa XYZ</h2>
-        <p>Inicia sesión para acceder a tu cuenta</p>
-        <form method="post">
-            <input type="text" name="username" placeholder="Usuario" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
-            <button type="submit">Iniciar sesión</button>
-        </form>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Iniciar Sesión - Empresa PBD</title>
+        <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    </head>
+    <body>
+        <div class="login-container">
+            <h2>Anti SQLI S.L.</h2>
+            <p>Inicia sesión para acceder a tu cuenta</p>
 
-    </div>
-</body>
+            <!-- Bloque para mostrar mensajes de error -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <p class="{{ category }}">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="post">
+                <input type="text" name="username" placeholder="Usuario" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <button type="submit">Iniciar sesión</button>
+            </form>
+        </div>
+    </body>
 </html>
