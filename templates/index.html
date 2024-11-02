@@ -15,6 +15,7 @@
             {% for tipo, sqli in sql_injections.items() %}
             <div class="card">
                 <h2>{{ sqli['title'] }}</h2>
+                <p>{{ sqli['description'][:100] }}...</p>
                 <div class="buttons">
                     <a href="{{ url_for('login_oracle', tipo_sqli=tipo) }}" class="btn oracle">Oracle</a>
                     <a href="{{ url_for('login_postgres', tipo_sqli=tipo) }}" class="btn postgres">PostgreSQL</a>

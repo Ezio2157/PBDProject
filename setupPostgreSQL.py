@@ -1,4 +1,3 @@
-
 import psycopg2 as PBD
 
 def dbConectarPostgreSQL():
@@ -144,7 +143,7 @@ def login_inseguro_time_postgresql(username, password):
 
     try:
         cursor = conexion.cursor()
-        sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+        sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
         cursor.close()
