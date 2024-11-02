@@ -44,13 +44,10 @@ def login_sqli(tipo_sqli, database):
         result = auth_function(username, password)
         print("result en app.py",result)
         if result:
-            # Enviamos el resultado de la sentencia (no existe resultado en caso de error en las blind)
-            if 'resultado' in result:
-                flash(str(result['resultado']),category='Resultado')
+
 
             # Creamos card para mostrar la sentencia
-            cardSentencia = dynamic_html.generarTarjetaInformacion("Sentencia SQL",
-                                        "Sentencia SQL ejecutada:", result['sentencia'])
+            cardSentencia = dynamic_html.generarTarjetaInformacion("Sentencia SQL", result['sentencia'])
             print("cardSentencia",cardSentencia)
             flash(cardSentencia,category='Sentencia')
 

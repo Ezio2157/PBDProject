@@ -19,7 +19,7 @@ import re
 
 import re
 
-def generarTarjetaInformacion(title, description, code):
+def generarTarjetaInformacion(title, code):
     """
     Genera el código HTML de una tarjeta con un título, descripción y bloque de código SQL con resaltado de sintaxis,
     incluyendo un tratamiento especial para los comentarios.
@@ -76,9 +76,6 @@ def generarTarjetaInformacion(title, description, code):
         <h2>{escape_html(title)}</h2>
     </header>
     <div class="card-body">
-        <p>
-            {escape_html(description)}
-        </p>
         <div class="code-block">
             <pre><code>{highlighted_code}</code></pre>
         </div>

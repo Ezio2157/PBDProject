@@ -127,7 +127,7 @@ def login_inseguro_base_oracle(username, password):
     try:
         cursor = conexion.cursor()
         cursor.execute(sentencia)
-        usuario = cursor.fetchone()
+        usuario = cursor.fetchall()
         cursor.close()
         #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         obj_resultado = {"resultado":usuario, "sentencia":sentencia}

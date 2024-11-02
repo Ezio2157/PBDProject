@@ -116,7 +116,7 @@ def login_inseguro_base_postgresql(username, password):
         cursor = conexion.cursor()
         sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
-        usuario = cursor.fetchone()
+        usuario = cursor.fetchall()
         cursor.close()
         obj_resultado = {"resultado":usuario, "sentencia":sentencia}
         return obj_resultado
@@ -181,7 +181,7 @@ def login_inseguro_errors_postgresql(username, password):
             return {"resultado":usuario,"sentencia":sentencia}
         else:
             print("Usuario o contraseña incorrectos")
-            return {"sentencia":sentencia}
+            return {"resultado":usuario,"sentencia":sentencia}
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)

