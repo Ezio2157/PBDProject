@@ -118,13 +118,10 @@ def login_inseguro_base_postgresql(username, password):
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
         cursor.close()
-        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
-        if usuario:
-            print("Usuario autenticado:", usuario)
-            return True
-        else:
-            print("Usuario o contraseña incorrectos")
-            return False
+        obj_resultado = {"resultado":usuario, "sentencia":sentencia}
+        return obj_resultado
+        #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
@@ -136,55 +133,57 @@ def login_inseguro_base_postgresql(username, password):
 # Login inseguro para blind por tiempo
 def login_inseguro_time_postgresql(username, password):
     print("---login---")
+    print("login_inseguro_time")
     conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
 
+    sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
     try:
         cursor = conexion.cursor()
-        sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
         cursor.close()
-        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
-            return True
+            return {"resultado":usuario,"sentencia":sentencia}
         else:
             print("Usuario o contraseña incorrectos")
-            return False
+            return {"sentencia":sentencia}
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
-        dbDesconectar(conexion)
-        return False
+        #dbDesconectar(conexion)
+        return {"sentencia":sentencia}
 
-#-------------------------------------------------------------------
 
-# Login inseguro para blind por errores
+# Login inseguro para errores
 def login_inseguro_errors_postgresql(username, password):
     print("---login---")
+    print ("---login_inseguro_errors---")
     conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
         return False
 
+    sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
     try:
         cursor = conexion.cursor()
-        sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
         cursor.execute(sentencia)
         usuario = cursor.fetchone()
+
         cursor.close()
         dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
-            return True
+            return {"resultado":usuario,"sentencia":sentencia}
         else:
             print("Usuario o contraseña incorrectos")
-            return False
+            return {"sentencia":sentencia}
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
         dbDesconectar(conexion)
-        return error
+        return {"resultado":error, "sentencia":sentencia}

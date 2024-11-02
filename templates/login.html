@@ -19,19 +19,6 @@
             <h2>Anti SQLI S.L. - {{ database }}</h2>
             <p>Inicia sesión para acceder a tu cuenta en la base de datos {{ database }}</p>
 
-            <!-- Bloque para mostrar mensajes de error -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                            {% if category == 'Resultado' %}
-                                <p class="{{ category }}">{{ message }}</p>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-
             <form method="post">
                 <input type="text" name="username" placeholder="Usuario" required>
                 <input type="password" name="password" placeholder="Contraseña" required>
@@ -44,17 +31,137 @@
     <div class="info-section">
         <h2>{{ title }}</h2>
         <div>{{ description | safe }}</div> <!-- Muestra la descripción específica del SQL Injection -->
+
+        <!-- Desplegable para mostrar el código SQL malicioso para username y password -->
+        <div class="dropdown">
+            <div class="dropdown-header" onclick="toggleDropdown()">
+                <span>Mostrar Código Malicioso</span>
+                <span class="arrow" id="arrow">&#9660;</span>
+            </div>
+            <div class="dropdown-content" id="dropdownContent">
+                <!-- Código malicioso para el campo de usuario -->
+                <div class="code-section">
+                    <p><strong>Usuario:</strong></p>
+                    <pre><code class="code-snippet-username">{{ usuario }}</code></pre>
+                    <button class="copy-btn" onclick="copyCode('code-snippet-username')">Copiar Usuario</button>
+                </div>
+
+                <!-- Código malicioso para el campo de contraseña -->
+                <div class="code-section">
+                    <p><strong>Contraseña:</strong></p>
+                    <pre><code class="code-snippet-password">{{ clave }}</code></pre>
+                    <button class="copy-btn" onclick="copyCode('code-snippet-password')">Copiar Contraseña</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desplegable v0chat -->
+    <div id="v0-code-dropdown-container">
+        <div id="v0-code-dropdown-select-wrapper">
+            <select id="v0-code-dropdown-custom-select">
+                <option value="" disabled selected>Selecciona una opción</option>
+                {% for credential in credenciales %}
+                <option value="{{ credential.nombre }}">{{ credential.nombre }}</option>
+                {% endfor %}
+            </select>
+            <div id="v0-code-dropdown-select-arrow"></div>
+        </div>
+        <div id="v0-code-dropdown-display">
+            <div class="v0-code-dropdown-item">
+                <span class="v0-code-dropdown-label">Usuario:</span>
+                <div class="v0-code-dropdown-content">
+                    <span id="v0-code-dropdown-user-code" class="v0-code-dropdown-code"></span>
+                    <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-user-code">Copiar</button>
+                </div>
+            </div>
+            <div class="v0-code-dropdown-item">
+                <span class="v0-code-dropdown-label">Contraseña:</span>
+                <div class="v0-code-dropdown-content">
+                    <span id="v0-code-dropdown-password-code" class="v0-code-dropdown-code"></span>
+                    <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-password-code">Copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const v0CodeDropdownSelect = document.getElementById('v0-code-dropdown-custom-select');
+        const v0CodeDropdownDisplay = document.getElementById('v0-code-dropdown-display');
+        const v0CodeDropdownUserCode = document.getElementById('v0-code-dropdown-user-code');
+        const v0CodeDropdownPasswordCode = document.getElementById('v0-code-dropdown-password-code');
+        const v0CodeDropdownCopyButtons = document.querySelectorAll('.v0-code-dropdown-copy-btn');
+
+        const v0CodeDropdownCodes = {{ credenciales | tojson }};
+
+        v0CodeDropdownSelect.addEventListener('change', (e) => {
+            const selectedOption = e.target.value;
+            if (selectedOption in v0CodeDropdownCodes) {
+                v0CodeDropdownUserCode.textContent = v0CodeDropdownCodes[selectedOption].user;
+                v0CodeDropdownPasswordCode.textContent = v0CodeDropdownCodes[selectedOption].password;
+                v0CodeDropdownDisplay.style.display = 'block';
+            } else {
+                v0CodeDropdownDisplay.style.display = 'none';
+            }
+        });
+
+        v0CodeDropdownCopyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+                const textToCopy = targetElement.textContent;
+
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const originalText = button.textContent;
+                    button.textContent = 'Copiado!';
+                    button.disabled = true;
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Error al copiar el texto: ', err);
+                });
+            });
+        });
+    </script>
+
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
+
                     {% if category == 'Sentencia' %}
                         <div id="s">{{ message | safe }}</div>
                     {% endif %}
+
+                    {% if category == 'Resultado' %}
+                        <p class="{{ category }}">{{ message }}</p>
+                    {% endif %}
+
                 {% endfor %}
             {% endif %}
         {% endwith %}
     </div>
 
 </div>
+
+<script>
+    function toggleDropdown() {
+        const content = document.getElementById("dropdownContent");
+        const arrow = document.getElementById("arrow");
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+            arrow.innerHTML = "&#9660;"; // Flecha hacia abajo
+        } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+            arrow.innerHTML = "&#9650;"; // Flecha hacia arriba
+        }
+    }
+
+    function copyCode(className) {
+        const code = document.querySelector(`.${className}`).innerText;
+        navigator.clipboard.writeText(code).then(() => {
+        });
+    }
+</script>
 </body>
 </html>
