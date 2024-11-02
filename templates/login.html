@@ -32,28 +32,7 @@
         <h2>{{ title }}</h2>
         <div>{{ description | safe }}</div> <!-- Muestra la descripción específica del SQL Injection -->
 
-        <!-- Desplegable para mostrar el código SQL malicioso para username y password -->
-        <div class="dropdown">
-            <div class="dropdown-header" onclick="toggleDropdown()">
-                <span>Mostrar Código Malicioso</span>
-                <span class="arrow" id="arrow">&#9660;</span>
-            </div>
-            <div class="dropdown-content" id="dropdownContent">
-                <!-- Código malicioso para el campo de usuario -->
-                <div class="code-section">
-                    <p><strong>Usuario:</strong></p>
-                    <pre><code class="code-snippet-username">{{ usuario }}</code></pre>
-                    <button class="copy-btn" onclick="copyCode('code-snippet-username')">Copiar Usuario</button>
-                </div>
 
-                <!-- Código malicioso para el campo de contraseña -->
-                <div class="code-section">
-                    <p><strong>Contraseña:</strong></p>
-                    <pre><code class="code-snippet-password">{{ clave }}</code></pre>
-                    <button class="copy-btn" onclick="copyCode('code-snippet-password')">Copiar Contraseña</button>
-                </div>
-            </div>
-        </div>
 
         <!-- Desplegable v0chat -->
     <div id="v0-code-dropdown-container">
@@ -92,16 +71,30 @@
         const v0CodeDropdownCopyButtons = document.querySelectorAll('.v0-code-dropdown-copy-btn');
 
         const v0CodeDropdownCodes = {{ credenciales | tojson }};
+        console.log(v0CodeDropdownCodes)
+        console.log(v0CodeDropdownCodes[0].nombre,
+            v0CodeDropdownCodes[0].usuario,
+            v0CodeDropdownCodes[0].password,);
 
         v0CodeDropdownSelect.addEventListener('change', (e) => {
             const selectedOption = e.target.value;
-            if (selectedOption in v0CodeDropdownCodes) {
+
+            for (let i = 0; i < v0CodeDropdownCodes.length; i++) {
+                if (v0CodeDropdownCodes[i].nombre === selectedOption) {
+                    console.log("entra")
+                    v0CodeDropdownUserCode.textContent = v0CodeDropdownCodes[i].usuario;
+                    v0CodeDropdownPasswordCode.textContent = v0CodeDropdownCodes[i].password;
+                    v0CodeDropdownDisplay.style.display = 'block';
+                    break;
+                }
+            }
+            /*if (selectedOption in v0CodeDropdownCodes) {
                 v0CodeDropdownUserCode.textContent = v0CodeDropdownCodes[selectedOption].user;
                 v0CodeDropdownPasswordCode.textContent = v0CodeDropdownCodes[selectedOption].password;
                 v0CodeDropdownDisplay.style.display = 'block';
             } else {
                 v0CodeDropdownDisplay.style.display = 'none';
-            }
+            }*/
         });
 
         v0CodeDropdownCopyButtons.forEach(button => {
