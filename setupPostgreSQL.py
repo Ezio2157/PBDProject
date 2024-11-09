@@ -177,11 +177,14 @@ def login_inseguro_errors_postgresql(username, password):
         cursor.close()
         dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
-            print("Usuario autenticado:", usuario)
-            return {"resultado":usuario,"sentencia":sentencia}
+            if isinstance(usuario, tuple) and len(usuario) == 3:
+                return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+            else:
+                print("Usuario autenticado:", usuario)
+                return {"resultado": usuario, "sentencia": sentencia}
         else:
             print("Usuario o contraseña incorrectos")
-            return {"resultado":usuario,"sentencia":sentencia}
+            return {"sentencia": sentencia}
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)

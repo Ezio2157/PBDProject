@@ -177,7 +177,7 @@ def login_inseguro_errors_oracle(username, password):
         print("Error: no se pudo conectar para autenticar.")
         return False
 
-    sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
     try:
         cursor = conexion.cursor()
         cursor.execute(sentencia)

@@ -202,6 +202,31 @@ pre {
     transition: background-color 0.3s ease;
 }
 
+/* styles.css */
+
+/* Estilos para los mensajes flash */
+.flash-message {
+    padding: 10px 20px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.flash-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Resto de tus estilos */
+
+
 .copy-btn:hover {
     background-color: #218838;
 }
@@ -358,3 +383,4 @@ pre {
             outline: none;
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
         }
+

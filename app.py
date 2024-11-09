@@ -54,7 +54,11 @@ def login_sqli(tipo_sqli, database):
 
             # Enviamos el resultado de la sentencia (no existe resultado en caso de error en las blind)
             if 'resultado' in result:
+                if 'auth' in result:
+                    flash("Bienvenido, sesión iniciada con éxito", category='welcome')
                 flash(str(result['resultado']), category='Resultado')
+            else:
+                flash("Usuario o contraseñas incorrectos", "error")
 
 
 
