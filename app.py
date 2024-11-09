@@ -46,6 +46,7 @@ def login_sqli(tipo_sqli, database):
         if result:
 
 
+
             # Creamos card para mostrar la sentencia
             cardSentencia = dynamic_html.generarTarjetaInformacion("Sentencia SQL", result['sentencia'])
             print("cardSentencia",cardSentencia)

@@ -19,6 +19,21 @@
             <h2>Anti SQLI S.L. - {{ database }}</h2>
             <p>Inicia sesión para acceder a tu cuenta en la base de datos {{ database }}</p>
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+
+                  {% for category, message in messages %}
+                    {% if category == 'welcome' %}
+                      <p class="flash-message success">{{ message }}</p>
+                    {% elif category == 'error' %}
+                      <p class="flash-message error">{{ message }}</p>
+                    {% endif %}
+                  {% endfor %}
+
+              {% endif %}
+            {% endwith %}
+
+
             <form method="post">
                 <input type="text" name="username" placeholder="Usuario" required>
                 <input type="password" name="password" placeholder="Contraseña" required>

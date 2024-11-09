@@ -186,8 +186,11 @@ def login_inseguro_errors_oracle(username, password):
         cursor.close()
         dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
-            print("Usuario autenticado:", usuario)
-            return {"resultado":usuario,"sentencia":sentencia}
+            if isinstance(usuario, tuple) and len(usuario) == 3:
+                return {"resultado": usuario, "sentencia": sentencia, "auth":"true"}
+            else:
+                print("Usuario autenticado:", usuario)
+                return {"resultado":usuario,"sentencia":sentencia}
         else:
             print("Usuario o contraseña incorrectos")
             return {"sentencia":sentencia}
