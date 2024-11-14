@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, redirect, url_for, render_template, flash
+from flask import Flask, request, jsonify, session, redirect, url_for, render_template, flash, abort
 from flask.scaffold import setupmethod
 
 from setupOracle import *
@@ -25,6 +25,7 @@ def login_oracle(tipo_sqli):
 
 @app.route('/login/postgres/<tipo_sqli>', methods=['GET', 'POST'])
 def login_postgres(tipo_sqli):
+    print("LLEGÓ")
     return login_sqli(tipo_sqli, database="Postgres")
 
 # Función de inicio de sesión común para manejar explicaciones dinámicas y autenticación
@@ -37,8 +38,16 @@ def login_sqli(tipo_sqli, database):
     auth_function = sqli_info["function_oracle"] if database == "Oracle" else sqli_info["function_postgres"]
 
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        # Determina si la solicitud contiene JSON
+        username=""
+        password=""
+        if request.is_json:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            username = request.form.get('username')
+            password = request.form.get('password')
 
         # Llama a la función de autenticación insegura
         result = auth_function(username, password)
@@ -59,7 +68,6 @@ def login_sqli(tipo_sqli, database):
                 flash(str(result['resultado']), category='Resultado')
             else:
                 flash("Usuario o contraseñas incorrectos", "error")
-
 
 
             #return resultado_sentencia
@@ -102,4 +110,4 @@ if __name__ == '__main__':
     initialize_databasePostgreSQL()
     # Abre la página de inicio automáticamente en el navegador
     webbrowser.open("http://127.0.0.1:5000/index")
-    app.run()
+    app.run(debug=True)

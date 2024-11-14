@@ -138,6 +138,7 @@ sql_injections = {
             <p>Evalúa el tiempo de respuesta del servidor para inferir si la inyección es exitosa o no. Es útil en aplicaciones
             que no revelan errores ni permiten consultas booleanas.</p>
         """,
+        "credenciales":[],
         "usuario": "admin",
         "clave": "admin",
         "route_oracle": "login_oracle_time_based",

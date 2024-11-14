@@ -155,7 +155,7 @@ def login_inseguro_time_postgresql(username, password):
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
-        #dbDesconectar(conexion)
+        dbDesconectar(conexion)
         return {"sentencia":sentencia}
 
 
