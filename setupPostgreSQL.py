@@ -41,12 +41,13 @@ def configuracion_tablas_postgresql(conexion):
     try:
         cursor = conexion.cursor()
 
-        # Crear la tabla Usuarios si no existe
+        # Crear la tabla Usuarios si no existe con columna session_cookie
         consulta = """
             CREATE TABLE IF NOT EXISTS Usuarios (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(50) NOT NULL UNIQUE,
-                password VARCHAR(50) NOT NULL
+                password VARCHAR(50) NOT NULL,
+                session_cookie VARCHAR(255)
             );
         """
         cursor.execute(consulta)
@@ -56,12 +57,14 @@ def configuracion_tablas_postgresql(conexion):
         count = cursor.fetchone()[0]
         if count == 0:
             usuarios_ejemplo = [
-                ("admin", "password123"),
-                ("user1", "password1"),
-                ("user2", "password2")
+                ("admin", "password123", "t4SpnpWyg76A3K2BqcFh2vODq0fqJGvs38ydh9"),
+                ("user1", "password1", "d382yd8n21df4314fn817yf6834188ls023d8d"),
+                ("user2", "password2", "u73dv226d726gh23fnjncuyg0q9udfjf47eueu")
             ]
-            # Usamos %s para parámetros en PostgreSQL
-            cursor.executemany("INSERT INTO Usuarios (username, password) VALUES (%s, %s)", usuarios_ejemplo)
+            cursor.executemany(
+                "INSERT INTO Usuarios (username, password, session_cookie) VALUES (%s, %s, %s)",
+                usuarios_ejemplo
+            )
             print("Usuarios de ejemplo insertados correctamente.")
         else:
             print("La tabla Usuarios ya contiene datos.")
@@ -73,6 +76,7 @@ def configuracion_tablas_postgresql(conexion):
         print("Error al crear la tabla o insertar usuarios en PostgreSQL")
         print(error)
         return False
+
 
 #-------------------------------------------------------------------
 
@@ -130,10 +134,10 @@ def login_inseguro_base_postgresql(username, password):
 
 #-------------------------------------------------------------------
 
-# Login inseguro para blind por tiempo
-def login_inseguro_time_postgresql(username, password):
+# Login inseguro para blind con username y password
+def login_inseguro_blind_no_cookie_postgresql(username, password):
     print("---login---")
-    print("login_inseguro_time")
+    print("login_inseguro_blind sin cookie")
     conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
     if not conexion:
         print("Error: no se pudo conectar para autenticar.")
@@ -190,3 +194,35 @@ def login_inseguro_errors_postgresql(username, password):
         print(error)
         dbDesconectar(conexion)
         return {"resultado":error, "sentencia":sentencia}
+
+# Función de autenticación insegura para blind injections via cookie
+def login_inseguro_blind_postgresql(cookie_value):
+    print("---login_inseguro_blind_postgresql---")
+    conexion = dbConectarPostgreSQL()
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    # Simular inyección SQL blind via cookie
+    sentencia = "SELECT * FROM Usuarios WHERE session_cookie = '" + cookie_value + "'"
+    try:
+        cursor = conexion.cursor()
+        """
+        # Simular retraso si se detecta una función de tiempo en la inyección
+        if "sleep(" in cookie_value.lower():
+            print("Simulando retraso en la consulta por inyección de tiempo")
+            time.sleep(5)  # Retraso de 5 segundos para simular una inyección de tiempo
+        """
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+        else:
+            print("Usuario o cookie incorrectos")
+            return {"sentencia": sentencia}
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario con cookie")
+        print(error)
+        return {"resultado": error, "sentencia": sentencia}

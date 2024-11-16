@@ -10,37 +10,74 @@
 <body>
 <div class="main-container">
 
-    <!-- Sección izquierda: Formulario de inicio de sesión -->
+    <!-- Sección izquierda: Formulario de inicio de sesión o formulario de cookie -->
     <div class="return-btn-wrapper">
         <a href="/index" class="elegant-return-btn" id="uniqueReturnButton">Volver</a>
+        {% if is_blind %}
+                <a href="#" class="elegant-cookie-btn" id="toggle-cookie-form">Cookie</a>
+        {% endif %}
     </div>
-    <div class="login-section">
-        <div class="login-box">
-            <h2>Anti SQLI S.L. - {{ database }}</h2>
-            <p>Inicia sesión para acceder a tu cuenta en la base de datos {{ database }}</p>
-
-            {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-
-                  {% for category, message in messages %}
-                    {% if category == 'welcome' %}
-                      <p class="flash-message success">{{ message }}</p>
-                    {% elif category == 'error' %}
-                      <p class="flash-message error">{{ message }}</p>
-                    {% endif %}
-                  {% endfor %}
-
-              {% endif %}
-            {% endwith %}
 
 
-            <form method="post">
-                <input type="text" name="username" placeholder="Usuario" required>
-                <input type="password" name="password" placeholder="Contraseña" required>
-                <button type="submit">Iniciar sesión</button>
-            </form>
+        <!-- Formulario de edición de cookie para inyección blind -->
+        <div class="cookie-section">
+            <div class="cookie-card">
+                <div id="cookie-header">
+                    <h2 class="cookie-title">Burpsuite Repeater</h2>
+                    <p class="cookie-description">Modifica la <b>cookie de sesión</b> para realizar una SQLI</p>
+                </div>
+
+                <form method="post" id="cookie-form" class="cookie-form" action="{{ url_for('cookie_login') }}">
+                    <div class="request-data">
+                        <input type="hidden" name="tipo_sqli" value="{{ tipo_sqli }}">
+                        <input type="hidden" name="database" value="{{ database }}">
+                        <!-- Simulación de la solicitud HTTP con un textarea editable para la cookie -->
+                        GET /cookie_check HTTP/1.1<br>
+                        Host: AntiSQLI-Security<br>
+                        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)<br>
+                        Accept: text/html,application/xhtml+xml,application/json;<br>
+                        Accept-Language: en-US,en;q=0.5<br>
+                        Accept-Encoding: gzip, deflate, br<br>
+                        Connection: close<br>
+                        Upgrade-Insecure-Requests: 1<br>
+                        Cache-Control: max-age=0<br>
+                        Cookie: <input type="text" class="editable-field" name="cookie_value" required value="t4SpnpWyg76A3K2BqcFh2vODq0fqJGvs38ydh9">
+                    </div>
+                    <div class="buttons">
+                        <button type="button" class="button" onclick="volverLogin()">Drop</button>
+                        <button type="submit" class="button primary">Forward</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+
+
+        <!-- Formulario de inicio de sesión tradicional -->
+        <div class="login-section">
+            <div class="login-box">
+                <h2>Anti SQLI S.L. - {{ database }}</h2>
+                <p>Inicia sesión para acceder a tu cuenta en la base de datos {{ database }}</p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                      {% for category, message in messages %}
+                        {% if category == 'welcome' %}
+                          <p class="flash-message success">{{ message }}</p>
+                        {% elif category == 'error' %}
+                          <p class="flash-message error">{{ message }}</p>
+                        {% endif %}
+                      {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                <form method="post">
+                    <input type="text" name="username" placeholder="Usuario" required>
+                    <input type="password" name="password" placeholder="Contraseña" required>
+                    <button type="submit">Iniciar sesión</button>
+                </form>
+            </div>
+        </div>
+
 
     <!-- Sección derecha: Documento explicativo dinámico -->
     <div class="info-section">
@@ -170,6 +207,24 @@
         navigator.clipboard.writeText(code).then(() => {
         });
     }
+
+    function volverLogin() {
+        let login = document.getElementsByClassName('login-section');
+        login[0].style.display = 'flex';
+        let cookie = document.getElementsByClassName('cookie-section');
+        cookie[0].style.display = 'none';
+        document.getElementById('toggle-cookie-form').style.display = 'inline-block'; // Mostrar el botón "Cookie" nuevamente
+    }
+
+    // Funcionalidad para el botón "Cookie"
+    document.getElementById('toggle-cookie-form').addEventListener('click', function(e) {
+        e.preventDefault();
+        let login = document.getElementsByClassName('login-section');
+        login[0].style.display = 'none';
+        let cookie = document.getElementsByClassName('cookie-section');
+        cookie[0].style.display = 'flex';
+        document.getElementById('toggle-cookie-form').style.display = 'none';
+    });
 </script>
 </body>
 </html>

@@ -16,8 +16,11 @@ Este proyecto utiliza las siguientes librerías de Python. Las versiones están 
 
 - Flask 2.2.0
 - werkzeug 2.2.0
+- termcolor 2.2.0
 - oracledb
 - psycopg2
+- requests
+- yaspin
 
 
 Para instalar las dependencias, ejecuta el siguiente comando:

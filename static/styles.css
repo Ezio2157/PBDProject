@@ -118,6 +118,191 @@ body {
     }
 }
 
+/* Estilos específicos para la sección de edición de cookies */
+.cookie-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background-color: #e0e0e0; /* Fondo ligeramente gris */
+}
+
+.cookie-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb; /* Bordes suaves */
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 600px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cookie-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.cookie-title {
+    margin-bottom: 15px;
+    color: #FF6600;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.cookie-description {
+    margin-bottom: 25px;
+    color: #4b5563;
+    text-align: center;
+    font-size: 16px;
+}
+
+#cookie-header {
+    border: #ccc solid 1px;
+    border-radius: 8px;
+    background-color: #e0e0e0;
+    margin-bottom: 15px;
+}
+
+/* Botón "Cookie" en la esquina superior derecha */
+.elegant-cookie-btn {
+    background-color: #28a745; /* Verde */
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-left: 300px; /* Espacio respecto al botón "Volver" */
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+.elegant-cookie-btn:hover {
+    background-color: #218838;
+}
+
+/* Opcional: Asegurar que el formulario de cookies esté oculto por defecto */
+.cookie-section {
+    display: none;
+}
+
+.request-data {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f4f6f9;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.editable-field {
+    width: 83%;
+    height: 40px; /* Ajusta la altura según tus preferencias */
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    background-color: #ffffd0;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #e0e0e0;
+    border-top: 1px solid #ccc;
+    border-radius: 0 0 8px 8px;
+}
+
+.button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+.button:hover {
+    background-color: #d0d0d0;
+}
+
+.button.primary {
+    background-color: #FF6600;
+    color: white;
+    border: none;
+}
+
+.button.primary:hover {
+    background-color: #FF8533;
+}
+
+/* Estilos para mensajes flash específicos de la sección de cookies */
+.cookie-section .flash-message {
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.flash-message.success {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.flash-message.error {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+.flash-message.sentencia {
+    background-color: #f59e0b;
+    color: #1f2937;
+    border-left: 5px solid #d97706;
+}
+
+.flash-message.Resultado {
+    color: #1f2937;
+    background-color: #e5e7eb;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+/* Responsividad para la sección de cookies */
+@media (max-width: 768px) {
+    .cookie-section {
+        padding: 20px;
+    }
+
+    .cookie-card {
+        padding: 20px;
+    }
+
+    .cookie-title {
+        font-size: 20px;
+    }
+
+    .cookie-description {
+        font-size: 14px;
+    }
+
+    .button {
+        font-size: 12px;
+        padding: 8px 15px;
+    }
+
+    .editable-field {
+        min-height: 60px;
+    }
+}
+
 /* Estilos para el mensaje de resultado */
 p.Resultado {
     background-color: #e3f7e3;
@@ -129,6 +314,49 @@ p.Resultado {
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Estilos para la pantalla de bienvenida */
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f4f4f9;
+}
+
+.welcome-container h1 {
+    color: #007bff;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.welcome-container .elegant-return-btn {
+    background-color: #FF6600; /* Mismo estilo que el botón "Volver" */
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.welcome-container .elegant-return-btn:hover {
+    background-color: #FF8533;
+}
+
+.elegant-sess-btn {
+    background-color: #ff0027;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.elegant-sess-btn:hover {
+    background-color: #dd1c3a;
+}
+
 
 /* Botón desplegable */
 .dropdown {
@@ -202,7 +430,7 @@ pre {
     transition: background-color 0.3s ease;
 }
 
-/* styles.css */
+/* styles.static */
 
 /* Estilos para los mensajes flash */
 .flash-message {
