@@ -43,7 +43,7 @@ def cookie_login():
 
     if not tipo_sqli or not database:
         flash("Información de inyección SQL no disponible.", "error")
-        return redirect(url_for('login_sqli', tipo_sqli=tipo_sqli, database=database))
+        return redirect(url_for(f"login_{database.lower()}", tipo_sqli=tipo_sqli, database=database))
 
     cookie_value = request.form.get('cookie_value')
     print(f"Valor de cookie_value recibido: {cookie_value}")  # Añadir esta línea para depuración
@@ -156,6 +156,7 @@ def login_sqli(tipo_sqli, database):
                     flash("Bienvenido, sesión iniciada con éxito", category='welcome')
                 flash(str(result['resultado']), category='Resultado')
             else:
+                flash("Usuario o contraseña incorrectos", category='error')
                 flash("Operación realizada con éxito", "success")
         else:
             flash("Error en la operación", "error")

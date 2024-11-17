@@ -152,7 +152,7 @@ def login_inseguro_blind_no_cookie_postgresql(username, password):
         #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
         if usuario:
             print("Usuario autenticado:", usuario)
-            return {"resultado":usuario,"sentencia":sentencia}
+            return {"resultado":usuario,"sentencia":sentencia, "auth": "true"}
         else:
             print("Usuario o contraseña incorrectos")
             return {"sentencia":sentencia}

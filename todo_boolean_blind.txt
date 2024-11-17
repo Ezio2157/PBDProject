@@ -1,4 +1,0 @@
-1. Crear frontend estilo cookie para las blind (boolean y time-based).
-2. Crear backend para las blind (boolean y time-based).
-3. Conectar frontend y backend para las blind (boolean y time-based).
-4. Modificar script boolean_blind.py.

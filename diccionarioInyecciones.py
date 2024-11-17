@@ -46,6 +46,7 @@ sql_injections = {
             <p>Utiliza los mensajes de error devueltos por el servidor para obtener información sobre la base de datos
             y realizar inyecciones de manera eficaz.</p>
         """,
+        "credenciales":[],
         "usuario": "admin",
         "clave": "admin",
         "route_oracle": "login_oracle_server_error",
