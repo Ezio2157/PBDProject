@@ -32,7 +32,7 @@
                         <input type="hidden" name="tipo_sqli" value="{{ tipo_sqli }}">
                         <input type="hidden" name="database" value="{{ database }}">
                         <!-- Simulación de la solicitud HTTP con un textarea editable para la cookie -->
-                        GET /cookie_check HTTP/1.1<br>
+                        POST /cookie_check HTTP/1.1<br>
                         Host: AntiSQLI-Security<br>
                         User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)<br>
                         Accept: text/html,application/xhtml+xml,application/json;<br>
