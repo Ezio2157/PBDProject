@@ -139,9 +139,15 @@ def login_sqli(tipo_sqli, database):
                 # No mostrar ningún mensaje, simplemente redirigir al formulario de cookies nuevamente
                 return redirect(url_for('login_sqli', tipo_sqli=tipo_sqli, database=database))
         else:
-            # Si la cookie es nula, usar autenticación con username y password
-            username = request.form.get('username', '')
-            password = request.form.get('password', '')
+            username = ""
+            password = ""
+            if request.is_json:
+                data = request.get_json()
+                username = data.get('username')
+                password = data.get('password')
+            else:
+                username = request.form.get('username')
+                password = request.form.get('password')
             result = auth_function(username, password)
 
         # Manejar el resultado de la autenticación
