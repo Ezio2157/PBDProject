@@ -61,9 +61,9 @@ def cookie_login():
 
     # Seleccionar la función de autenticación basada en el tipo de inyección y la base de datos
     if sqli_info.get("function_oracle") and database == "Oracle":
-        auth_function = sqli_info.get("function_oracle")
+        auth_function = login_inseguro_blind_oracle
     elif sqli_info.get("function_postgres") and database == "Postgres":
-        auth_function = sqli_info.get("function_postgres")
+        auth_function = login_inseguro_blind_postgresql
     else:
         auth_function = None
 
@@ -113,14 +113,14 @@ def login_sqli(tipo_sqli, database):
 
     # Seleccionar la función de autenticación basada en el tipo de inyección y la base de datos
     if database == "Oracle":
-        auth_function_blind = sqli_info.get("function_oracle")
-        auth_function = login_inseguro_blind_no_cookie_oracle
+        auth_function_blind = login_inseguro_blind_oracle
     elif database == "Postgres":
-        auth_function_blind = sqli_info.get("function_postgres")
-        auth_function = login_inseguro_blind_no_cookie_postgresql
+        auth_function_blind = login_inseguro_blind_postgresql
     else:
         auth_function_blind = None
         auth_function = None
+
+    auth_function = sqli_info["function_oracle"] if database == "Oracle" else sqli_info["function_postgres"]
 
     if request.method == 'POST':
         cookie_value = request.form.get('cookie_value')

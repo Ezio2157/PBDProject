@@ -132,8 +132,8 @@ sql_injections = {
         "clave": "admin",
         "route_oracle": "login_oracle_blind_boolean",
         "route_postgres": "login_postgres_blind_boolean",
-        "function_oracle": login_inseguro_blind_oracle,
-        "function_postgres": login_inseguro_blind_postgresql
+        "function_oracle": login_inseguro_blind_no_cookie_oracle,
+        "function_postgres": login_inseguro_blind_no_cookie_postgresql
     },
     "time_based": {
         "title": "Time-Based Blind SQL Injection",
