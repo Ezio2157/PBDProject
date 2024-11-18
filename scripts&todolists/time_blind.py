@@ -4,7 +4,7 @@ import requests
 import string
 import signal
 from termcolor import colored
-import dic_inyecciones_for_scripts as dic
+import dic_inyecciones_time as dic
 
 # controlar CTRL+C
 def signal_handler(sig, frame):

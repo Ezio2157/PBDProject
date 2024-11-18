@@ -9,7 +9,7 @@
 <body>
     <div class="welcome-container">
         <h1>Bienvenido de nuevo, {{ username }}!</h1>
-        <a href="{{ url_for('login_' + session.get('database').lower(), tipo_sqli=session.get('tipo_sqli')) }}" class="elegant-sess-btn">Cerrar Sesión</a>
+          <a href="{{ url_for('index') }}" class="elegant-sess-btn">Cerrar Sesión</a>
     </div>
 </body>
 </html>

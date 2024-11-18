@@ -25,14 +25,10 @@ def login_postgres(tipo_sqli):
 
 @app.route('/cookie', methods=['POST'])
 def cookie_login():
-    tipo_sqli = session.get('tipo_sqli')
-    database = session.get('database')
+    cookie_value = request.get_json().get('cookie_value') if request.is_json else request.form.get('cookie_value')
+    tipo_sqli = request.get_json().get('tipo_sqli') if request.is_json else request.form.get('tipo_sqli')
+    database = request.get_json().get('database') if request.is_json else request.form.get('database')
 
-    if not tipo_sqli or not database:
-        flash("Información de inyección SQL no disponible.", "error")
-        return redirect(url_for(f"login_{database.lower()}", tipo_sqli=tipo_sqli, database=database))
-
-    cookie_value = request.form.get('cookie_value')
     if not cookie_value:
         flash("No se proporcionó ninguna cookie.", "error")
         return redirect(url_for('login_sqli', tipo_sqli=tipo_sqli, database=database))
@@ -60,6 +56,7 @@ def cookie_login():
     if result and result.get('auth') == "true":
         usuario = result['resultado'][1] if isinstance(result['resultado'], tuple) and len(result['resultado']) > 1 else "Usuario"
         session['username'] = usuario
+        print("Redirection to /welcome triggered")  # Add this line for logging
         return redirect(url_for('welcome'))
     else:
         return redirect(url_for(f'login_{database.lower()}', tipo_sqli=tipo_sqli, database=database))
@@ -152,4 +149,4 @@ if __name__ == '__main__':
     initialize_databaseOracle()
     initialize_databasePostgreSQL()
     webbrowser.open("http://127.0.0.1:5000/index")
-    # app.run(debug=True)
+    app.run(debug=False)
