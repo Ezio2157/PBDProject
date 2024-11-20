@@ -98,20 +98,37 @@
             <div id="v0-code-dropdown-select-arrow"></div>
         </div>
         <div id="v0-code-dropdown-display">
-            <div class="v0-code-dropdown-item">
-                <span class="v0-code-dropdown-label">Usuario:</span>
-                <div class="v0-code-dropdown-content">
-                    <span id="v0-code-dropdown-user-code" class="v0-code-dropdown-code"></span>
-                    <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-user-code">Copiar</button>
+            {% if is_blind %}
+                <div class="v0-code-dropdown-item">
+                    <span class="v0-code-dropdown-label">Payload correcto:</span>
+                    <div class="v0-code-dropdown-content">
+                        <span id="v0-code-dropdown-payload1-code" class="v0-code-dropdown-code"></span>
+                        <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-payload1-code">Copiar</button>
+                    </div>
                 </div>
-            </div>
-            <div class="v0-code-dropdown-item">
-                <span class="v0-code-dropdown-label">Contraseña:</span>
-                <div class="v0-code-dropdown-content">
-                    <span id="v0-code-dropdown-password-code" class="v0-code-dropdown-code"></span>
-                    <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-password-code">Copiar</button>
+                <div class="v0-code-dropdown-item">
+                    <span class="v0-code-dropdown-label">Payload erroneo:</span>
+                    <div class="v0-code-dropdown-content">
+                        <span id="v0-code-dropdown-payload2-code" class="v0-code-dropdown-code"></span>
+                        <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-payload2-code">Copiar</button>
+                    </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="v0-code-dropdown-item">
+                    <span class="v0-code-dropdown-label">Usuario:</span>
+                    <div class="v0-code-dropdown-content">
+                        <span id="v0-code-dropdown-user-code" class="v0-code-dropdown-code"></span>
+                        <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-user-code">Copiar</button>
+                    </div>
+                </div>
+                <div class="v0-code-dropdown-item">
+                    <span class="v0-code-dropdown-label">Contraseña:</span>
+                    <div class="v0-code-dropdown-content">
+                        <span id="v0-code-dropdown-password-code" class="v0-code-dropdown-code"></span>
+                        <button class="v0-code-dropdown-copy-btn" data-target="v0-code-dropdown-password-code">Copiar</button>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -120,23 +137,30 @@
         const v0CodeDropdownDisplay = document.getElementById('v0-code-dropdown-display');
         const v0CodeDropdownUserCode = document.getElementById('v0-code-dropdown-user-code');
         const v0CodeDropdownPasswordCode = document.getElementById('v0-code-dropdown-password-code');
+        const v0CodeDropdownPayload1Code = document.getElementById('v0-code-dropdown-payload1-code');
+        const v0CodeDropdownPayload2Code = document.getElementById('v0-code-dropdown-payload2-code');
         const v0CodeDropdownCopyButtons = document.querySelectorAll('.v0-code-dropdown-copy-btn');
 
         const v0CodeDropdownCodes = {{ credenciales | tojson }};
+        const isBlind = {{ is_blind | tojson }};
         console.log(v0CodeDropdownCodes)
         console.log(v0CodeDropdownCodes[0].nombre,
             v0CodeDropdownCodes[0].usuario,
             v0CodeDropdownCodes[0].password,);
+        console.log("isBlind: ", isBlind);
 
 
         v0CodeDropdownSelect.addEventListener('change', (e) => {
             const selectedOption = e.target.value;
-
             for (let i = 0; i < v0CodeDropdownCodes.length; i++) {
                 if (v0CodeDropdownCodes[i].nombre === selectedOption) {
-                    console.log("entra")
-                    v0CodeDropdownUserCode.textContent = v0CodeDropdownCodes[i].usuario;
-                    v0CodeDropdownPasswordCode.textContent = v0CodeDropdownCodes[i].password;
+                    if (isBlind) {
+                        v0CodeDropdownPayload1Code.textContent = v0CodeDropdownCodes[i].usuario;
+                        v0CodeDropdownPayload2Code.textContent = v0CodeDropdownCodes[i].password;
+                    } else {
+                        v0CodeDropdownUserCode.textContent = v0CodeDropdownCodes[i].usuario;
+                        v0CodeDropdownPasswordCode.textContent = v0CodeDropdownCodes[i].password;
+                    }
                     v0CodeDropdownDisplay.style.display = 'block';
                     break;
                 }

