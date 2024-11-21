@@ -1,3 +1,2 @@
-2. Preparar inyecciones para las boolean_blind --> (https://portswigger.net/web-security/sql-injection/blind)
 3. Preparar inyecciones para las boolean (no blind)
 4. ¿Hacer script para boolean (no blind)?
