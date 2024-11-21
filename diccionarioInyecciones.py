@@ -6,9 +6,10 @@ sql_injections = {
     "database_error": {
         "title": "Database-Errors SQL Injection",
         "description": """
-            <p>Utiliza los mensajes de error devueltos por la base de datos para extraer información confidencial.
-            Este tipo de inyección se aprovecha de mensajes de error explícitos en las consultas SQL.</p>
+            <p>La inyección SQL basada en errores es una técnica de ataque en la que un atacante manipula consultas SQL para provocar que la base de datos genere mensajes de error detallados. Estos mensajes pueden revelar información sensible sobre la estructura y el contenido de la base de datos, facilitando al atacante la planificación de ataques más sofisticados. Para mitigar este riesgo, es esencial validar y sanear todas las entradas de usuario, utilizar consultas parametrizadas y configurar la aplicación para que no revele detalles internos en mensajes de error.</p>
         """,
+        "dificultad": 2,
+        "impacto": 2,
         "credenciales":[
             {
                 # Login sin credenciales válidas
@@ -57,9 +58,10 @@ sql_injections = {
     "union": {
         "title": "UNION-Attack SQL Injection",
         "description": """
-            <p>Combina dos o más consultas usando la palabra clave UNION para obtener resultados adicionales de la base de datos,
-            lo cual permite acceder a datos adicionales en el mismo conjunto de resultados.</p>
+            <p>La inyección SQL basada en UNION es una técnica en la que un atacante utiliza la cláusula UNION para combinar los resultados de una consulta legítima con datos maliciosamente solicitados, permitiendo extraer información sensible de la base de datos. Para llevar a cabo este ataque, el atacante identifica puntos vulnerables en la aplicación web, determina el número de columnas en la consulta original y luego inyecta una consulta maliciosa que utiliza UNION SELECT para unir los resultados deseados. Para prevenir este tipo de ataques, es esencial validar y sanear todas las entradas de usuario, utilizar consultas parametrizadas y aplicar el principio de privilegios mínimos en las cuentas de la base de datos.</p>
         """,
+        "dificultad": 2,
+        "impacto": 3,
         "credenciales":[
             {
                 "nombre":"Login sin credenciales válidas",
@@ -110,9 +112,10 @@ sql_injections = {
     "boolean": {
         "title": "Boolean-Based SQL Injection",
         "description": """
-            <p>Emplea consultas booleanas para determinar si ciertas condiciones son verdaderas o falsas, sin necesidad de mensajes de error.
-            Es útil para inferir datos en situaciones donde los errores están limitados.</p>
+            <p>La inyección SQL basada en booleanos es una técnica utilizada por atacantes para manipular consultas SQL mediante la inserción de condiciones booleanas en las entradas de una aplicación web. A diferencia de la inyección SQL ciega, en este caso la aplicación muestra directamente los resultados de las consultas o proporciona mensajes de error detallados. El atacante aprovecha esta retroalimentación para extraer información de la base de datos, observando cómo las respuestas de la aplicación varían al introducir diferentes condiciones booleanas en las consultas.</p>
         """,
+        "dificultad": 2,
+        "impacto": 3,
         "credenciales":[],
         "usuario": "admin",
         "clave": "admin",
@@ -125,9 +128,10 @@ sql_injections = {
         "title": "Blind Boolean-Based SQL Injection",
         "is_blind": True,
         "description": """
-            <p>Evalúa los resultados en función de respuestas booleanas sin revelar datos directamente. Es útil cuando los mensajes de error
-            están deshabilitados, ya que permite al atacante inferir información a través de condiciones booleanas.</p>
+            <p>Es una técnica empleada por atacantes para extraer información de una base de datos cuando la aplicación no muestra directamente los resultados de las consultas SQL ni proporciona mensajes de error detallados. En este escenario, el atacante infiere la información observando las diferencias en las respuestas de la aplicación al enviar consultas que evalúan condiciones booleanas.</p>
         """,
+        "dificultad": 3,
+        "impacto": 3,
         "credenciales":[ # usuario/password en este caso serían payload que devuelva True y False respectivamente
             {
                 "nombre":"Entendiendo la inyección",
@@ -166,9 +170,10 @@ sql_injections = {
         "title": "Time-Based Blind SQL Injection",
         "is_blind": True,
         "description": """
-            <p>Evalúa el tiempo de respuesta del servidor para inferir si la inyección es exitosa o no. Es útil en aplicaciones
-            que no revelan errores ni permiten consultas booleanas.</p>
+            <p>Es una técnica utilizada por atacantes para extraer información de una base de datos cuando la aplicación no muestra directamente los resultados de las consultas SQL ni proporciona mensajes de error detallados. En este escenario, el atacante infiere información observando los retrasos en las respuestas de la aplicación al enviar consultas que provocan demoras condicionales en la base de datos.</p>
         """,
+        "dificultad": 3,
+        "impacto": 3,
         "credenciales":[],
         "usuario": "admin",
         "clave": "admin",

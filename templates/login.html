@@ -84,6 +84,36 @@
         <h2>{{ title }}</h2>
         <div>{{ description | safe }}</div> <!-- Muestra la descripción específica del SQL Injection -->
 
+        <div class="ratings_box">
+            <!-- Sección para las imágenes de dificultad -->
+            <div class="rating">
+                <h3>Dificultad</h3>
+                <div>
+                    {% for i in range(dificultad) %}
+                    <img src="/static/images/inyeccion_ok.png" alt="Inyección" class="rating-item">
+                    {% endfor %}
+                    {% for i in range(3 - dificultad) %}
+                    <img src="/static/images/inyeccion_no.png" alt="Inyección" class="rating-item">
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sección para las imágenes de impacto -->
+            <div class="rating">
+                <h3>Impacto</h3>
+                <div>
+                    {% for i in range(impacto) %}
+                    <img src="/static/images/peligro_ok.png" alt="Impacto" class="rating-item">
+                    {% endfor %}
+                    {% for i in range(3 - impacto) %}
+                    <img src="/static/images/peligro_no.png" alt="Impacto" class="rating-item">
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+
 
 
         <!-- Desplegable v0chat -->

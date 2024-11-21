@@ -137,6 +137,47 @@
     box-shadow: 0 2px 3px rgba(0,0,0,0.1);
 }
 
+.ratings_box {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    /* gap: 20px; /* Espaciado entre las cajas */
+    padding: 1.25% 15%;
+}
+
+.rating {
+    background-color: #cce7ff; /* Fondo claro */
+    border: 1px solid #ddd; /* Borde gris claro */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 15px; /* Espaciado interno */
+    width: 25%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación para un efecto suave */
+}
+
+.rating:hover {
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Incrementa la sombra */
+}
+
+.rating h3 {
+    margin-bottom: 10px; /* Separación entre el título y las imágenes */
+    margin-top: 0;
+    font-size: 1.2em;
+    color: #333;
+    text-align: center;
+}
+
+.rating img.rating-item {
+    width: 35px; /* Tamaño ajustado */
+    height: 35px;
+    margin: 2px;
+}
 
 @media (max-width: 768px) {
     .return-btn-wrapper {

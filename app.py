@@ -116,6 +116,8 @@ def login_sqli(tipo_sqli, database):
         'login.html',
         title=sqli_info.get("title", ""),
         description=sqli_info.get("description", ""),
+        dificultad=sqli_info.get("dificultad", ""),
+        impacto=sqli_info.get("impacto", ""),
         database=database,
         tipo_sqli=tipo_sqli,
         credenciales=sqli_info.get("credenciales", {}),
