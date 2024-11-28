@@ -61,6 +61,7 @@ def main():
 
         # Añadir ',' al principio de la lista
         conjunto_car.insert(0, ",")
+        conjunto_car.insert(0, ":")
         for i in range(total_steps + 1):
 
             for letra in conjunto_car:

