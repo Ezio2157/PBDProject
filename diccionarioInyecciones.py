@@ -81,7 +81,7 @@ sql_injections = {
             {
                 "nombre":"Nombre de la BD (PostgreSQL)",
                 "usuario":"cualquier_input",
-                "password":"cualquier_input' UNION SELECT current_database() AS nombre_bd; --"
+                "password":"cualquier_input' UNION SELECT NULL, current_database() AS nombre_bd, NULL, NULL; --"
             },
             {
                 "nombre":"Versión de la BD (PostgreSQL)",
