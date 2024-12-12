@@ -17,6 +17,7 @@
 \usepackage{float}  % Ayuda con los entornos flotantes
 \usepackage[absolute,overlay]{textpos}
 \usepackage[hidelinks]{hyperref}
+
 \geometry{top=2cm,bottom=2cm,left=2cm,right=2cm}  % Márgenes personalizados
 
 \definecolor{mybeige}{RGB}{245, 245, 200}
@@ -288,70 +289,97 @@ AND contraseña = 'contraseña';
  \subsection{Causa principal de las inyecciones SQL}
 
  La principal causa de las inyecciones SQL es una mala validación de las entradas proporcionadas por los usuarios. Esto ocurre, en muchos casos, debido a la concatenación directa de parámetros en las consultas SQL, lo que permite que un atacante manipule la estructura de la consulta para incluir comandos maliciosos. Este enfoque no solo es inseguro, sino que también facilita la explotación de las vulnerabilidades al no distinguir entre los datos del usuario y el código SQL.
- 
+ \vspace{0,5cm}
+
  Un ejemplo típico de concatenación de parámetros puede observarse en la siguiente función de autenticación insegura para una base de datos Oracle. Aquí, los valores proporcionados por el usuario, como el nombre de usuario y la contraseña, se concatenan directamente en la consulta:
+ \vspace{0,5cm}
+
+
  
- \begin{lstlisting}[language=Python]
- # Función de autenticación insegura
- def login_inseguro_base_oracle(username, password):
-     print("---login---")
-     print("login_inseguro_base")
-     conexion = dbConectarOracle()  # Abre la conexión para autenticación
-     if not conexion:
-         print("Error: no se pudo conectar para autenticar.")
-         return False
-     sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
- 
-     try:
-         cursor = conexion.cursor()
-         cursor.execute(sentencia)
-         usuario = cursor.fetchall()
-         cursor.close()
-         if usuario:
-             print("Usuario autenticado:", usuario)
-             return {"resultado":usuario, "sentencia":sentencia, "auth":"true"}
-         else:
-             print("Usuario o contraseña incorrectos")
-             return {"sentencia":sentencia}
-     except PBD.DatabaseError as error:
-         print("Error al autenticar usuario")
-         print(error)
-         return {"resultado":error, "sentencia":sentencia}
- \end{lstlisting}
- 
+\begin{lstlisting}[language=Python]
+# Función de autenticación insegura
+def login_inseguro_base_oracle(username, password):
+.
+.
+.
+
+
+    sentencia =   "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+
+
+
+    
+
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchall()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado":usuario, "sentencia":sentencia, "auth":"true"}
+        else:
+.
+.
+.
+    \end{lstlisting}
+
+ \vspace{0,5cm}
+
  En este ejemplo, si un atacante introduce un valor malicioso como \texttt{username = 'admin'--} en lugar de un nombre de usuario legítimo, puede manipular la consulta para obtener acceso al sistema sin necesidad de una contraseña válida. Esto ocurre porque la concatenación no distingue entre datos y comandos SQL, permitiendo al atacante alterar la lógica de la consulta.
- 
+ \vspace{0,5cm}
+
  Una forma segura de evitar este tipo de vulnerabilidades es utilizar la vinculación de parámetros en lugar de la concatenación. Este enfoque asegura que los datos del usuario sean tratados exclusivamente como valores y no como parte del código SQL. A continuación, se presenta un ejemplo seguro de autenticación utilizando vinculación de parámetros en Oracle:
- 
+ \vspace{0,5cm}
+
  \begin{lstlisting}[language=Python]
  # Función de autenticación segura
- def login_seguro_oracle(username, password):
-     print("---login---")
-     print("login_seguro")
-     conexion = dbConectarOracle()  # Abre la conexión para autenticación
-     if not conexion:
-         print("Error: no se pudo conectar para autenticar.")
-         return False
- 
-     try:
-         cursor = conexion.cursor()
-         cursor.execute("SELECT * FROM Usuarios WHERE username = :user AND password = :pass", (username, password))
-         usuario = cursor.fetchone()
-         cursor.close()
-         if usuario:
-             print("Usuario autenticado:", usuario)
-             return True
-         else:
-             print("Usuario o contraseña incorrectos")
-             return False
-     except PBD.DatabaseError as error:
-         print("Error al autenticar usuario")
-         print(error)
-         return False
+def login_seguro_oracle(username, password):
+.
+.
+.
+
+    try:
+        cursor = conexion.cursor()
+        (*@\colorbox{yellow}{cursor.execute("SELECT * FROM Usuarios }@*)
+        (*@\colorbox{yellow}{WHERE username = :user }@*)
+        (*@\colorbox{yellow}{AND password = :pass", user=username, pass=password)}@*)
+        usuario = cursor.fetchone()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return True
+        else:
+.
+.
+.
  \end{lstlisting}
- 
+ \vspace{0,5cm}
+
  En este caso, el uso de \texttt{:user} y \texttt{:pass} como marcadores de posición permite que los valores del usuario sean procesados de manera segura por el motor de la base de datos. Esto elimina cualquier posibilidad de que se interpreten como comandos SQL, previniendo ataques de inyección SQL. Este enfoque no solo mejora la seguridad de la aplicación, sino que también fomenta mejores prácticas en el manejo de entradas de usuario.
  
+    \subsection{Tipos de inyecciones SQL}
+    Las inyecciones SQL pueden manifestarse de diferentes formas, dependiendo de la vulnerabilidad específica que se explote y del comportamiento del sistema. A continuación, se presentan algunos de los tipos más comunes de inyecciones SQL y cómo se manifiestan en el contexto de una aplicación web.
+    \vspace{0,5cm}
+
+    \begin{itemize}
+        \item \textbf{Inyección basada en errores:} Este tipo de inyección aprovecha los mensajes de error generados por la base de datos para obtener información sobre la estructura y el contenido de la base de datos. Al introducir consultas mal formadas, un atacante puede provocar errores que revelan detalles sensibles, como nombres de tablas o columnas.
+        \vspace{0,2cm}
+        \item \textbf{Inyección de tipo "Union Attack":} Las inyecciones de tipo "Union Attack" se basan en la cláusula UNION de SQL para combinar resultados de consultas y obtener información confidencial. Al manipular las consultas para incluir una instrucción UNION, un atacante puede extraer datos de tablas no autorizadas.
+        \vspace{0,2cm}
+        \item \textbf{Inyección basada en booleanos:} Las inyecciones basadas en booleanos se aprovechan de las diferencias en el comportamiento de la aplicación para inferir información sobre la base de datos. Al modificar las condiciones lógicas de las consultas, un atacante puede deducir detalles sobre la estructura y el contenido de la base de datos.
+        \vspace{0,2cm}
+        \item \textbf{Inyección blind:} Las inyecciones ciegas se caracterizan por la falta de mensajes de error explícitos, lo que dificulta la identificación de la vulnerabilidad. Al manipular las consultas para observar cambios en el comportamiento de la aplicación, un atacante puede inferir información sobre la base de datos sin generar alertas.
+        \vspace{0,2cm}
+        \item \textbf{Inyección blind de tiempo:} Las inyecciones de tiempo se basan en la introducción de retrasos deliberados en las consultas para inferir información sobre la base de datos. Al introducir instrucciones que causan demoras en la respuesta, un atacante puede deducir detalles sobre la estructura y el contenido de la base de datos.
+    \end{itemize}
+    \vspace{0,5cm}
+
+    Cada tipo de inyección SQL presenta desafíos y riesgos únicos, que van desde la exposición de información confidencial hasta la alteración de registros críticos. Al comprender cómo ocurren y cómo prevenirlas, los desarrolladores y profesionales de la seguridad pueden fortalecer la protección de sus aplicaciones y bases de datos, reduciendo así la exposición a riesgos innecesarios.
+
+        
+
+
 
 %Preparacion del entorno explicacion de las funciones de requerimientos
 \section{Preparación del entorno}
@@ -632,8 +660,7 @@ Para acceder a la sección especifica para esta inyección en el laboratorio, un
     \caption{Opción de Database Errors en el laboratorio de inyecciones SQL}
 \end{figure}
 
-Como es posible observar, se tienen dos posibles opciones de trabajo de inyecciones en funcion de la base de datos que este trabajando de fondo, \textbf{Oracle} y \textbf{PostgreSQL} 
-
+Como es posible observar, se tienen dos posibles opciones de trabajo de inyecciones en funcion de la base de datos que este trabajando de fondo, \textbf{Oracle} y \textbf{PostgreSQL}.
 Como va a ser común entre las diferentes secciones en el laboratorio, se tiene un formulario básico de inicio de sesión con dos campos: \textit{usuario} y \textit{contraseña},
 simulando lo que podria ser una ventana de login en una página web genérica.
 
@@ -651,10 +678,75 @@ Como primer punto se ha decidido hacer mención al tipo de inyección para poder
 y en todas las subsecciones del laboratorio.
 
 De modo que para realizar dicha inyección en el selector de inyecciones de la derecha, debajo de las tarjetas de información relevante se deberá seleccionar el tipo de inyección "Login sin credenciales válidas"
-y muestra la siguiente información para introducir en los campos \textbf{Usuario} y \textbf{Contraseña}
+y muestra la siguiente información para introducir en los campos \textbf{Usuario} y \textbf{Contraseña}.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error3.png}
+    \caption{Datos a introducir en los campos del formulario}
+\end{figure}
 
+Como se puede observar en el código de inyección para el campo de la contraseña en el formulario, se aprovecha de la capacidad de SQL de poder trabajar con lógica booleana para inyectar
+que la comprobación de que el conjunto \textit{usuario} y \textit{contraseña} esten en una tupla de la tabla o que 1 es igual a 1 (comentando lo que venga detras para evitar comporbaciones secundarias),
+de modo que esta comprobación siempre va a ser cierta por la segunda parte de la comprobación.
 
+\begin{lstlisting}[language=SQL]
+SELECT * FROM Usuarios WHERE username = '(*@\textbf{cualquier\_input}@*)' AND password = '(*@\textbf{cualquier\_input' OR 1=1 --}@*)'
+\end{lstlisting}
+
+Atendiendo al diccionario de inyecciones en el código de la aplicación, en el caso de las inyecciones basadas en errores de la base de datos, se estaria usando la función con la vulnerabilidad
+que permita mostrar este tipo inyección, denominada "login\_inseguro\_errors\_oracle".
+
+Al ejecutar la función de inyección en el laboratorio, se obtiene un mensaje de éxito en la autenticación, lo que indica que la inyección ha sido exitosa 
+y se ha logrado eludir la autenticación sin necesidad de credenciales válidas, puidendo observar la sentencia SQL total ejecutada y la tupla resultado obtenida de la tabla,
+que debido a la naturaleza de la inyección, se ha devuelto la primera tupla de la tabla.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error4.png}
+    \caption{Resultado de la inyección para login sin credenciales válidas}
+\end{figure}
+
+\subsection{información sobre las tablas}
+
+En la siguiente inyección se va a mostrar como se puede obtener información sobre las tablas de la base de datos, en este caso se va a obtener el nombre de las tablas de la base de datos.
+Para realizar dicha inyección en el selector de inyecciones de la derecha, debajo de las tarjetas de información relevante se deberá seleccionar el tipo de inyección "Información sobre las tablas"
+y muestra la siguiente información para introducir en los campos \textbf{Usuario} y \textbf{Contraseña}.
+
+\subsection{Código vulnerable del login}
+
+\begin{lstlisting}[language=Python]
+    def login_inseguro_errors_oracle(username, password):
+        print("---login---")
+        print ("---login_inseguro_errors---")
+        conexion = dbConectarOracle()  # Abre la conexión para autenticación
+        if not conexion:
+            print("Error: no se pudo conectar para autenticar.")
+            return False
+    
+        sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+        try:
+            cursor = conexion.cursor()
+            cursor.execute(sentencia)
+            usuario = cursor.fetchone()
+    
+            cursor.close()
+            dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+            if usuario:
+                print("Usuario autenticado:", usuario)
+                return {"resultado":usuario,"sentencia":sentencia, "auth":"true"}
+            else:
+                print("Usuario o contraseña incorrectos")
+                return {"sentencia":sentencia}
+        except PBD.DatabaseError as error:
+            print("Error al autenticar usuario")
+            print(error)
+            dbDesconectar(conexion)
+            return {"resultado":error, "sentencia":sentencia}
+    \end{lstlisting}
+    
+La vulnerabilidad se encuentra en la concatenación de los valores de los campos \textit{usuario} y \textit{contraseña} en la consulta SQL, 
+lo que permite al atacante manipular la lógica de la consulta para obtener acceso no autorizado al sistema; tal y como se ha visto anteriormente.
 
 \section{Inyección basada en Union Attack}
 La inyección SQL basada en \textbf{UNION} es una técnica en la que un atacante utiliza la cláusula UNION para combinar los resultados de una consulta legítima con datos maliciosamente solicitados, permitiendo extraer información sensible de la base de datos. 
@@ -704,8 +796,9 @@ En este caso:
     \item \texttt{dual}: Es una tabla especial de Oracle utilizada para ejecutar consultas que no necesitan datos de tablas reales.
 \end{itemize}
 
+\subsubsection{Explicación del funcionamiento}
 La cláusula \texttt{UNION SELECT} combina los resultados de dos consultas SQL. En este caso, la inyección SQL modifica la consulta legítima original, añadiendo una nueva consulta que no está relacionada con los datos legítimos de la aplicación, pero que proporciona información sensible. Es importante tener en cuenta que la consulta maliciosa debe tener el mismo número de columnas que la consulta original.
-Por ejemplo, si la consulta legítima tiene cuatro columnas (en este caso en la tabla \textit{usuarios} existen las columnas \texttt{id}, \texttt{username}, \texttt{password} y \texttt{session\_cookie}), la inyección debe proporcionar exactamente cuatro valores en su cláusula \texttt{UNION SELECT}. De lo contrario, Oracle devolverá un error debido a la incompatibilidad de columnas. Para esta inyección, solo interesa el valor de \texttt{ora\_database\_name}, pero se incluyen \texttt{1} y \texttt{NULL} como valores de relleno para las demás columnas requeridas. \\
+Por ejemplo, si la consulta legítima tiene cuatro columnas (en este caso en la tabla \textit{usuarios} existen las columnas \texttt{id}, \texttt{username}, \texttt{password} y \texttt{session\_cookie}), la inyección debe proporcionar exactamente cuatro valores en su cláusula \texttt{UNION SELECT}. De lo contrario, Oracle devolverá un error debido a la incompatibilidad de columnas. Para esta inyección, solo interesa el valor de \texttt{ora\_database\_name}, pero se incluyen \texttt{1} y \texttt{NULL} como valores de relleno para las demás columnas requeridas.
 
 Al ejecutar esta inyección, el atacante obtiene el nombre de la base de datos en el campo correspondiente, que se muestra en la interfaz del laboratorio como un valor destacado en la salida del ataque.
 
@@ -735,12 +828,75 @@ En este caso:
 \subsubsection{Explicación del funcionamiento}
 El objetivo de esta inyección es aprovechar la estructura de la vista \texttt{v\$version} para obtener la versión exacta de la base de datos. La consulta inyectada utiliza \texttt{UNION SELECT} para combinar los resultados de la consulta legítima con una consulta que devuelve el contenido de la columna \texttt{banner} de la vista \texttt{v\$version}. Al ejecutar esta inyección, el valor de la versión se presenta en el campo correspondiente de la interfaz de la aplicación, proporcionando al atacante la información necesaria para ajustar ataques posteriores.
 
-La interfaz del laboratorio presenta un formulario en el que se puede introducir esta inyección en el campo de entrada de usuario. Una vez ejecutada, el resultado muestra la versión de la base de datos en el campo visible. A continuación, se incluye una captura de la sección específica:
+Al ejecutar esta inyección, el atacante obtiene la versión de la base de datos en el campo correspondiente, que se muestra en la interfaz del laboratorio como un valor destacado en la salida del ataque.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Imagenes/union4.png}
     \caption{Obtención de la versión de la base de datos en Oracle}
+\end{figure}
+
+\subsection{Obtención de todas las tablas de la base de datos}
+Un paso clave en un ataque avanzado es obtener un listado de todas las tablas de la base de datos. Este tipo de información permite a un atacante identificar las estructuras de datos disponibles, lo que facilita la selección de objetivos específicos, como tablas que almacenan credenciales, datos confidenciales o información sensible. Para lograr esto, se puede realizar una inyección SQL que extraiga información directamente de las vistas del sistema disponibles en la base de datos.
+
+En este laboratorio, se utiliza la siguiente inyección SQL para obtener un listado de las tablas de la base de datos Oracle bajo el esquema del propietario \texttt{SYSTEM}:
+
+\begin{lstlisting}[language=SQL]
+cualquier_input' UNION SELECT 1, NULL, OWNER, TABLE_NAME FROM all_tables WHERE OWNER='SYSTEM' -- AND password = 'cualquier_input'
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{OWNER}: Es una columna de la vista \texttt{ALL\_TABLES} que contiene el nombre del propietario (esquema) al que pertenece cada tabla en la base de datos. En este caso, se está filtrando específicamente al propietario \texttt{SYSTEM}, que normalmente contiene tablas relacionadas con la administración de la base de datos.
+    \item \texttt{TABLE\_NAME}: Es otra columna de la vista \texttt{ALL\_TABLES} que contiene el nombre de cada tabla dentro del esquema indicado. Esta es la información objetivo del ataque, ya que revela todos los nombres de las tablas disponibles.
+    \item \texttt{NULL}: Se utiliza como valor de relleno para columnas que no son relevantes en la consulta inyectada. Esto asegura que el número de columnas en la consulta inyectada coincida con el de la consulta legítima, evitando errores de ejecución.
+    \item \texttt{ALL\_TABLES}: Es una vista del diccionario de datos de Oracle que muestra todas las tablas accesibles al usuario actual, incluidas las de otros esquemas a las que tenga permisos.
+    \item \texttt{WHERE OWNER='SYSTEM'}: Este filtro se aplica para limitar los resultados de la consulta a las tablas que pertenecen al esquema \texttt{SYSTEM}. Esto permite enfocar el ataque en un área específica de la base de datos.
+    \item \texttt{-- AND password = 'cualquier\_input'}: El uso del comentario (\texttt{--}) elimina cualquier condición adicional en la consulta original, como la verificación de contraseñas, asegurando que la consulta inyectada se ejecute sin restricciones. En este caso la inyección se realiza en el campo \textbf{}
+\end{itemize}
+
+\subsubsection{Explicación del funcionamiento}
+La consulta inyectada aprovecha la vista \texttt{ALL\_TABLES} para obtener un listado de todas las tablas accesibles en el esquema \texttt{SYSTEM}. La combinación de \texttt{UNION SELECT} con esta vista permite extraer datos estructurados directamente del diccionario de datos de Oracle.
+
+La estructura de la consulta original se mantiene al incluir cuatro valores en la inyección (\texttt{1}, \texttt{NULL}, \texttt{OWNER} y \texttt{TABLE\_NAME}), lo que coincide con el número de columnas de la consulta legítima. Esto evita errores de sintaxis y asegura que los resultados de la inyección se combinen correctamente con los de la consulta original.
+
+Al ejecutar esta inyección, el atacante obtiene todos los nombres de las tablas almacenadas en la base de datos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/union5.png}
+    \caption{Obtención de tablas de la base de datos en Oracle}
+\end{figure}
+
+Al ejecutar una inyección SQL que consulta la vista \texttt{ALL\_TABLES}, es común que el resultado incluya tablas creadas por defecto por Oracle, como aquellas asociadas al sistema o utilizadas internamente para la administración de la base de datos. Para centrarse únicamente en tablas relevantes para el atacante, se pueden aplicar filtros adicionales en la cláusula \texttt{WHERE} de la inyección.
+
+Un ejemplo de una inyección con estos filtros aplicados es el siguiente:
+
+\begin{lstlisting}[language=SQL]
+cualquier_input' UNION SELECT 1, NULL, OWNER, TABLE_NAME FROM all_tables 
+WHERE OWNER = 'SYSTEM' 
+AND TABLE_NAME NOT LIKE '%$%' 
+AND TABLE_NAME NOT LIKE 'SYS%' 
+AND TABLE_NAME NOT LIKE 'LOGMNR%' --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{TABLE\_NAME NOT LIKE '\%\$\%'}: Filtra tablas cuyos nombres contienen el carácter \texttt{\$}, que generalmente son tablas de sistema utilizadas internamente por Oracle para la gestión de metadatos o componentes específicos.
+    \item \texttt{TABLE\_NAME NOT LIKE 'SYS\%'}: Excluye tablas cuyos nombres comienzan con \texttt{SYS}, ya que estas suelen pertenecer al esquema del sistema (\texttt{SYS}) y no son de interés para la mayoría de los ataques.
+    \item \texttt{TABLE\_NAME NOT LIKE 'LOGMNR\%'}: Elimina tablas relacionadas con la funcionalidad de \texttt{LogMiner} de Oracle, una herramienta utilizada para analizar registros de transacciones y que, en la mayoría de los casos, no contiene datos directamente útiles para los atacantes.
+\end{itemize}
+
+Al aplicar estos filtros, los resultados de la consulta se limitan a las tablas más relevantes, lo que facilita el análisis y reduce el ruido en el proceso de reconocimiento. Esto es especialmente útil en entornos con un gran número de tablas, donde los resultados pueden ser abrumadores si se incluyen todas las tablas creadas por defecto por Oracle.
+
+Por ejemplo, al filtrar las tablas de sistema, el atacante puede enfocarse en tablas creadas por el administrador o los desarrolladores de la base de datos, que probablemente contengan información sensible o relacionada con las funcionalidades de la aplicación.
+
+El laboratorio refleja esta estrategia de filtrado mostrando únicamente las tablas relevantes después de ejecutar la inyección filtrada. Esto permite a los participantes observar cómo una consulta más específica puede ser más efectiva en un ataque real.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/union6.png}
+    \caption{Obtención de tablas filtradas en Oracle}
 \end{figure}
 
 
