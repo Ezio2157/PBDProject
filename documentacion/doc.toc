@@ -17,13 +17,26 @@
 \contentsline {section}{\numberline {7}Inyección basada en errores de la base de datos}{12}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Mecanismo del Ataque}{12}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Login sin credenciales válidas}{13}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}información sobre las tablas}{15}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}Código vulnerable del login}{15}{subsection.7.4}%
-\contentsline {section}{\numberline {8}Inyección basada en Union Attack}{15}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Mecanismo del ataque}{16}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Obtención de nombre de la base de datos}{17}{subsection.8.2}%
-\contentsline {subsubsection}{\numberline {8.2.1}Explicación del funcionamiento}{17}{subsubsection.8.2.1}%
-\contentsline {subsection}{\numberline {8.3}Obtención de la versión de la base de datos}{18}{subsection.8.3}%
-\contentsline {subsubsection}{\numberline {8.3.1}Explicación del funcionamiento}{19}{subsubsection.8.3.1}%
-\contentsline {subsection}{\numberline {8.4}Obtención de todas las tablas de la base de datos}{19}{subsection.8.4}%
-\contentsline {subsubsection}{\numberline {8.4.1}Explicación del funcionamiento}{20}{subsubsection.8.4.1}%
+\contentsline {subsection}{\numberline {7.3}Información sobre las tablas}{15}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Información sobre las columnas de una tabla}{15}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Código vulnerable del login}{16}{subsection.7.5}%
+\contentsline {section}{\numberline {8}Inyección basada en Union Attack}{17}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Mecanismo del ataque}{17}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Obtención de nombre de la base de datos}{18}{subsection.8.2}%
+\contentsline {subsubsection}{\numberline {8.2.1}Explicación del funcionamiento}{19}{subsubsection.8.2.1}%
+\contentsline {subsection}{\numberline {8.3}Obtención de la versión de la base de datos}{19}{subsection.8.3}%
+\contentsline {subsubsection}{\numberline {8.3.1}Explicación del funcionamiento}{20}{subsubsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.4}Obtención de todas las tablas de la base de datos}{21}{subsection.8.4}%
+\contentsline {subsubsection}{\numberline {8.4.1}Explicación del funcionamiento}{21}{subsubsection.8.4.1}%
+\contentsline {subsection}{\numberline {8.5}Diferencias de las inyecciones en PostgreSQL}{23}{subsection.8.5}%
+\contentsline {subsubsection}{\numberline {8.5.1}Obtención del nombre de la base de datos}{23}{subsubsection.8.5.1}%
+\contentsline {subsubsection}{\numberline {8.5.2}Obtención de la versión de la base de datos}{24}{subsubsection.8.5.2}%
+\contentsline {subsubsection}{\numberline {8.5.3}Obtención de todas las tablas de la base de datos}{25}{subsubsection.8.5.3}%
+\contentsline {subsection}{\numberline {8.6}Código vulnerable del login}{26}{subsection.8.6}%
+\contentsline {subsubsection}{\numberline {8.6.1}Código vulnerable en Oracle}{26}{subsubsection.8.6.1}%
+\contentsline {subsubsection}{\numberline {8.6.2}Versión segura del código en Oracle}{26}{subsubsection.8.6.2}%
+\contentsline {subsubsection}{\numberline {8.6.3}Código vulnerable en Postgre}{27}{subsubsection.8.6.3}%
+\contentsline {section}{\numberline {9}Inyección basada en Booleanos}{28}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Boolean-Based SQL Injection}{28}{subsection.9.1}%
+\contentsline {subsubsection}{\numberline {9.1.1}Mecanismo del ataque}{28}{subsubsection.9.1.1}%
+\contentsline {subsection}{\numberline {9.2}Obtención del número de carácteres de un campo}{29}{subsection.9.2}%

@@ -365,7 +365,7 @@ def login_seguro_oracle(username, password):
     \begin{itemize}
         \item \textbf{Inyección basada en errores:} Este tipo de inyección aprovecha los mensajes de error generados por la base de datos para obtener información sobre la estructura y el contenido de la base de datos. Al introducir consultas mal formadas, un atacante puede provocar errores que revelan detalles sensibles, como nombres de tablas o columnas.
         \vspace{0,2cm}
-        \item \textbf{Inyección de tipo "Union Attack":} Las inyecciones de tipo "Union Attack" se basan en la cláusula UNION de SQL para combinar resultados de consultas y obtener información confidencial. Al manipular las consultas para incluir una instrucción UNION, un atacante puede extraer datos de tablas no autorizadas.
+        \item \textbf{Inyección de tipo Union Attack:} Las inyecciones de tipo "Union Attack" se basan en la cláusula UNION de SQL para combinar resultados de consultas y obtener información confidencial. Al manipular las consultas para incluir una instrucción UNION, un atacante puede extraer datos de tablas no autorizadas.
         \vspace{0,2cm}
         \item \textbf{Inyección basada en booleanos:} Las inyecciones basadas en booleanos se aprovechan de las diferencias en el comportamiento de la aplicación para inferir información sobre la base de datos. Al modificar las condiciones lógicas de las consultas, un atacante puede deducir detalles sobre la estructura y el contenido de la base de datos.
         \vspace{0,2cm}
@@ -707,11 +707,81 @@ que debido a la naturaleza de la inyección, se ha devuelto la primera tupla de 
     \caption{Resultado de la inyección para login sin credenciales válidas}
 \end{figure}
 
-\subsection{información sobre las tablas}
+\subsection{Información sobre las tablas}
 
-En la siguiente inyección se va a mostrar como se puede obtener información sobre las tablas de la base de datos, en este caso se va a obtener el nombre de las tablas de la base de datos.
-Para realizar dicha inyección en el selector de inyecciones de la derecha, debajo de las tarjetas de información relevante se deberá seleccionar el tipo de inyección "Información sobre las tablas"
+En la siguiente inyección se va a mostrar como se puede obtener información sobre las tablas de la base de datos, 
+en este caso se va a obtener el nombre de las tablas de la base de datos.
+Para realizar dicha inyección en el selector de inyecciones de la derecha, 
+debajo de las tarjetas de información relevante se deberá seleccionar el tipo de inyección "Información sobre las tablas"
 y muestra la siguiente información para introducir en los campos \textbf{Usuario} y \textbf{Contraseña}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error5.png}
+    \caption{Datos a introducir en los campos del formulario}
+\end{figure}
+
+En el código de inyección para el campo de la usuario en el formulario, 
+se aprovecha de la capacidad de SQL de poder trabajar con lógica booleana para inyectar la busqueda de la información de una tabla
+que se sospecha que no exista, para forzar al sistema que devuelva un error y muestre la información del error que se ha producido,
+lo que hace que al conocer el error se pueda inferir información sobre el tipo de base de datos sobre la que se esta trabajando.
+
+\begin{lstlisting}[language=SQL]
+    SELECT * FROM Usuarios WHERE username = '(*@' OR 1=(SELECT * FROM tabla\_inexistente) --@*)' AND password = '(*@cualquier\_input@*)'
+\end{lstlisting}
+
+Del mismo modo en que se ha hecho en la inyección anterior, 
+se ha implementado una función en el código de la aplicación que permita mostrar este tipo inyección, denominada "login\_inseguro\_errors\_oracle".
+
+Al ejecutar la función de inyección en el laboratorio, la inyección no devuelve directamente en el login un error de inicio de sesión,
+ya que la lógica de la sentencia es correcta por lo que en el login no se mostraria retroalimentación del error. Sin embargo,
+en la sección de la derecha donde se muestra la información de la inyección, se puede observar la sentencia SQL total ejecutada y el error que se ha producido,
+en el caso de una posible ejecución usando el SGBD de Oracle se produciria el siguiente error:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error6.png}
+    \caption{Resultado de la inyección para información sobre las tablas}
+\end{figure}
+
+\subsection{Información sobre las columnas de una tabla}
+
+En la siguiente inyección se va a mostrar como se puede obtener información sobre las columnas de una tabla de la base de datos,
+en este caso se va a obtener el nombre de las columnas de la tabla \textit{Usuarios}.
+Para realizar dicha inyección en el selector de inyecciones de la derecha,
+debajo de las tarjetas de información relevante se deberá seleccionar el tipo de inyección "Información sobre las columnas de una tabla"
+y muestra la siguiente información para introducir en los campos \textbf{Usuario} y \textbf{Contraseña}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error7.png}
+    \caption{Datos a introducir en los campos del formulario}
+\end{figure}
+
+En el código de inyección para el campo de la usuario en el formulario,
+a partir de la capacidad de SQL de poder trabajar con lógica booleana se inyecta la busqueda de la información de una columna
+que se sospecha que no exista, para forzar al sistema que devuelva un error y muestre la información del error que se ha producido,
+lo que hace que al conocer el error se pueda inferir información sobre el tipo de base de datos sobre la que se esta trabajando o
+en caso de encontrar un caso en el que no se genere error, se puede inferir información sobre la estructura de la tabla.
+
+\begin{lstlisting}[language=SQL]
+    SELECT * FROM Usuarios WHERE username = '(*@\textbf{' OR 1=(SELECT columna\_inexistente FROM Usuarios) --}@*)' AND password = '(*@\textbf{cualquier\_input}@*)'
+\end{lstlisting}
+
+Siguiendo con la linea definida en las inyecciones anteriores, 
+se ha implementado una función en el código de la aplicación que permita mostrar este tipo inyección, 
+denominada "login\_inseguro\_errors\_oracle".
+
+De manera muy similar a como a sido definido en el caso anterior, la inyección no devuelve directamente en el login un error de inicio de sesión,
+ya que la lógica de la sentencia es correcta por lo que en el login no se mostraria retroalimentación del error. Sin embargo,
+en la sección de la derecha donde se muestra la información de la inyección, se puede observar la sentencia SQL total ejecutada y el error que se ha producido,
+en el caso de una posible ejecución usando el SGBD de Oracle se produciria el siguiente error:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error8.png}
+    \caption{Resultado de la inyección para información sobre las columnas de una tabla}
+\end{figure}
 
 \subsection{Código vulnerable del login}
 
@@ -899,12 +969,297 @@ El laboratorio refleja esta estrategia de filtrado mostrando únicamente las tab
     \caption{Obtención de tablas filtradas en Oracle}
 \end{figure}
 
+\subsection{Diferencias de las inyecciones en PostgreSQL}
 
-%Mostrar y documentar código de login vulnerable (si no se ha documentado ya en una inyeccion previa)
+Aunque las inyecciones \texttt{UNION SELECT} comparten un principio básico, existen diferencias importantes entre Oracle y PostgreSQL debido a las particularidades de cada sistema de gestión de bases de datos. Estas diferencias incluyen:
+\begin{itemize}
+    \item Nombres y estructuras de las vistas del sistema.
+    \item Sintaxis y funciones específicas para obtener metadatos.
+    \item La necesidad de adaptaciones en los valores de relleno (\texttt{NULL} o literales).
+\end{itemize}
 
+A continuación, se analizarán las diferencias específicas para cada tipo de inyección, comparando las consultas utilizadas en Oracle y PostgreSQL.
 
+\subsubsection{Obtención del nombre de la base de datos}
+En Oracle, se utiliza la función \texttt{ora\_database\_name} para obtener el nombre de la base de datos activa, mientras que en PostgreSQL se utiliza la función \texttt{current\_database()}. La sintaxis de ambas inyecciones es la siguiente:
+
+\begin{itemize}
+    \item \textbf{Oracle}:
+    \begin{lstlisting}[language=SQL]
+    cualquier_input' UNION SELECT 1, ora_database_name, NULL AS nombre_bd_relleno_1, NULL AS nombre_bd_relleno_2 FROM dual --
+    \end{lstlisting}
+
+    \item \textbf{PostgreSQL}:
+    \begin{lstlisting}[language=SQL]
+    cualquier_input' UNION SELECT NULL, current_database() AS nombre_bd, NULL, NULL; --
+    \end{lstlisting}
+\end{itemize}
+
+\textbf{Diferencias clave:}
+\begin{itemize}
+    \item En PostgreSQL, la función \texttt{current\_database()} se utiliza para devolver el nombre de la base de datos activa. A diferencia de \texttt{ora\_database\_name}, esta función no requiere tablas auxiliares como \texttt{dual}.
+    \item PostgreSQL permite la ejecución directa de la función sin necesidad de tablas adicionales, simplificando la consulta.
+    \item Los valores de relleno (\texttt{NULL}) en PostgreSQL cumplen la misma función de garantizar la compatibilidad con la estructura de la consulta original.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/union7.png}
+    \caption{Obtención del nombre de la base de datos en PostgreSQL}
+\end{figure}
+
+\subsubsection{Obtención de la versión de la base de datos}
+Para obtener la versión de la base de datos, Oracle utiliza la vista \texttt{v\$version}, mientras que en PostgreSQL se utiliza la función \texttt{version()} que devuelve información detallada del sistema. Las inyecciones correspondientes son:
+
+\begin{itemize}
+    \item \textbf{Oracle}:
+    \begin{lstlisting}[language=SQL]
+    cualquier_input' UNION SELECT NULL, banner, NULL, NULL FROM v$version WHERE banner LIKE 'Oracle%' --
+    \end{lstlisting}
+
+    \item \textbf{PostgreSQL}:
+    \begin{lstlisting}[language=SQL]
+    cualquier_input' UNION SELECT NULL, version(), NULL, NULL; --
+    \end{lstlisting}
+\end{itemize}
+
+\textbf{Diferencias clave:}
+\begin{itemize}
+    \item En PostgreSQL, la función \texttt{version()} devuelve un solo valor con información sobre la versión del sistema de gestión de bases de datos, el sistema operativo y otros detalles relevantes, mientras que Oracle utiliza una vista que contiene múltiples filas.
+    \item PostgreSQL no requiere un filtro como \texttt{WHERE banner LIKE 'Oracle\%'}, ya que la función \texttt{version()} devuelve directamente la información necesaria.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/union8.png}
+    \caption{Obtención de la versión de la base de datos en PostgreSQL}
+\end{figure}
+
+\subsubsection{Obtención de todas las tablas de la base de datos}
+Para obtener un listado de todas las tablas, Oracle utiliza la vista \texttt{ALL\_TABLES}, mientras que PostgreSQL emplea \texttt{information\_schema.tables}. Las inyecciones correspondientes son:
+
+\begin{itemize}
+    \item \textbf{Oracle}:
+    \begin{lstlisting}[language=SQL]
+    cualquier_input' UNION SELECT 1, NULL, OWNER, TABLE_NAME FROM all_tables WHERE OWNER='SYSTEM' --
+    \end{lstlisting}
+
+    \item \textbf{PostgreSQL}:
+    \begin{lstlisting}[language=SQL]
+    cualquier_input' UNION SELECT NULL, NULL, table_schema, table_name 
+    FROM information_schema.tables WHERE table_schema = 'public'; --
+    \end{lstlisting}
+\end{itemize}
+
+\textbf{Diferencias clave:}
+\begin{itemize}
+    \item En PostgreSQL, la vista \texttt{information\_schema.tables} se utiliza para obtener un listado de tablas, donde \texttt{table\_schema} corresponde al esquema del propietario de la tabla y \texttt{table\_name} al nombre de la tabla.
+    \item La condición \texttt{WHERE table\_schema = 'public'} se utiliza en PostgreSQL para filtrar las tablas creadas en el esquema \texttt{public}, que es el predeterminado en muchas aplicaciones.
+    \item Al igual que en Oracle, es posible agregar filtros adicionales en PostgreSQL para excluir tablas del sistema o irrelevantes, utilizando condiciones como \texttt{table\_name NOT LIKE 'pg\_\%'}.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/union9.png}
+    \caption{Obtención de tablas de la base de datos en PostgreSQL}
+\end{figure}
+
+\subsection{Código vulnerable del login}
+A continuación, se presenta el código vulnerable en Python para el login  tanto en \textbf{Oracle} como en \textbf{Postgre}, que permite la inyección SQL basada en \texttt{UNION SELECT}.
+
+\subsubsection{Código vulnerable en Oracle}
+En el siguiente código para el login en Oracle, la vulnerabilidad radica en la concatenación directa de las entradas del usuario (\texttt{username} y \texttt{password}) en la consulta SQL, sin realizar validación o sanitización:
+
+\begin{lstlisting}[language=Python]
+def login_inseguro_base_oracle(username, password):
+    conexion = dbConectarOracle()
+    if not conexion:
+        return False
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"'
+                                        AND password = '"+password+"'"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchall()
+        cursor.close()
+        if usuario:
+            return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+        else:
+            return {"sentencia": sentencia}
+    except PBD.DatabaseError as error:
+        return {"resultado": error, "sentencia": sentencia}
+\end{lstlisting}
+
+\textbf{Localización de la vulnerabilidad}: La vulnerabilidad se encuentra en la construcción de la variable \texttt{sentencia}, donde los valores proporcionados por el usuario se concatenan directamente en la consulta SQL.
+
+\begin{lstlisting}[language=Python]
+sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+\end{lstlisting}
+
+Esta práctica permite que un atacante inserte código SQL malicioso que manipule la consulta.
+
+\subsubsection{Versión segura del código en Oracle}
+Para evitar inyecciones SQL, se debe usar consultas parametrizadas:
+
+\begin{lstlisting}[language=Python]
+def login_seguro_base_oracle(username, password):
+    conexion = dbConectarOracle()
+    if not conexion:
+        return False
+    sentencia = "SELECT * FROM Usuarios WHERE (*@\colorbox{yellow}{username = :username}@*)
+                                         AND (*@\colorbox{yellow}{password = :password}@*)"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia, {"username": (*@\colorbox{yellow}{username}@*), "password": (*@\colorbox{yellow}{password}@*)})
+        usuario = cursor.fetchall()
+        cursor.close()
+        if usuario:
+            return {"resultado": usuario, "auth": "true"}
+        else:
+            return {"auth": "false"}
+    except PBD.DatabaseError as error:
+        return {"resultado": error}
+\end{lstlisting}
+
+\subsubsection{Código vulnerable en Postgre}
+
+El siguiente código para el login en PostgreSQL presenta la misma vulnerabilidad, utilizando concatenación directa de las entradas del usuario en la consulta SQL:
+
+\begin{lstlisting}[language=Python]
+def login_inseguro_base_postgresql(username, password):
+    conexion = dbConectarPostgreSQL()
+    if not conexion:
+        return False
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchall()
+        cursor.close()
+        if usuario:
+            return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+        else:
+            return {"sentencia": sentencia}
+    except PBD.DatabaseError as error:
+        return {"resultado": error, "sentencia": sentencia}
+\end{lstlisting}
+
+%#### Localización de la vulnerabilidad
+La vulnerabilidad está en la construcción de la variable \texttt{sentencia}, donde se concatena directamente la entrada del usuario:
+
+\begin{lstlisting}[language=Python]
+sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+\end{lstlisting}
+
+%#### Versión segura del código
+En PostgreSQL, se deben usar consultas parametrizadas con \texttt{psycopg2}:
+
+\begin{lstlisting}[language=Python]
+def login_seguro_base_postgresql(username, password):
+    conexion = dbConectarPostgreSQL()
+    if not conexion:
+        return False
+    sentencia = "SELECT * FROM Usuarios WHERE username = %s AND password = %s"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia, (username, password))
+        usuario = cursor.fetchall()
+        cursor.close()
+        if usuario:
+            return {"resultado": usuario, "auth": "true"}
+        else:
+            return {"auth": "false"}
+    except PBD.DatabaseError as error:
+        return {"resultado": error}
+\end{lstlisting}
 
 %------------------------------------------------------------------------------------------------------
+
+\section{Inyección basada en Booleanos}
+\subsection{Boolean-Based SQL Injection}
+
+La inyección SQL basada en booleanos es una técnica en la que un atacante explota vulnerabilidades en las consultas SQL de una aplicación para inferir información sobre la base de datos. Este ataque se basa en el análisis de las respuestas de la aplicación web a consultas booleanas, es decir, aquellas que evalúan condiciones como verdaderas o falsas. A diferencia de otros métodos, esta técnica no requiere acceso directo a los resultados de la base de datos; en su lugar, el atacante utiliza las diferencias en las respuestas de la aplicación (como cambios en el contenido, mensajes de error o tiempo de carga) para deducir información sensible. Prevenir este tipo de ataques requiere una estricta validación de entradas, el uso de consultas parametrizadas y una adecuada configuración de los mensajes de error.
+
+\subsubsection{Mecanismo del ataque}
+
+\begin{enumerate}
+    \item \textbf{Identificación de puntos vulnerables:} El atacante busca parámetros de entrada en la aplicación web que interactúan directamente con la base de datos. Esto puede incluir campos de formularios, parámetros en la URL, cookies o encabezados HTTP. Una vez localizado un punto vulnerable, el atacante comienza a probar diferentes inyecciones booleanas.
+
+    \item \textbf{Construcción de consultas booleanas:} Utilizando inyecciones como:
+    \begin{verbatim}
+    http://example.com/page.php?id=1 AND 1=1
+    \end{verbatim}
+    (siempre verdadera) y:
+    \begin{verbatim}
+    http://example.com/page.php?id=1 AND 1=2
+    \end{verbatim}
+    (siempre falsa), el atacante evalúa las diferencias en las respuestas de la aplicación. Por ejemplo, si la primera consulta devuelve contenido y la segunda no, el atacante confirma que la entrada es vulnerable.
+
+    \item \textbf{Inferencia de datos sensibles:} Una vez confirmada la vulnerabilidad, el atacante realiza consultas booleanas para inferir información sobre la base de datos. Por ejemplo, puede intentar determinar la longitud del nombre de una tabla:
+    \begin{verbatim}
+    http://example.com/page.php?id=1 AND LENGTH(table_name)=5
+    \end{verbatim}
+    Si la aplicación devuelve contenido en esta condición, el atacante deduce que el nombre de la tabla tiene 5 caracteres. Este proceso se repite para extraer más información, como nombres de columnas o datos específicos.
+
+\end{enumerate}
+
+Para acceder a la sección específica para esta inyección en el laboratorio, una vez desplegado el servidor, se debe seleccionar la opción Boolean-Based SQL Injection, en Oracle o en PostgreSQL.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/BooleanSQLIMenu.png}
+    \caption{Opción de Boolean-Based SQL Injection en el laboratorio de inyecciones SQL}
+\end{figure}
+
+En esta sección, se tiene un formulario básico de inicio de sesión con dos campos: \textit{usuario} y \textit{contraseña}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/BooleanSQLILab.png}
+    \caption{Formulario de inicio de sesión para Boolean-Based SQL Injection}
+\end{figure}
+
+Se puede observar también la descripción de la inyección, su grado de dificultad, y su grado de peligrosidad.
+
+
+\subsection{Obtención del número de carácteres de un campo}
+
+Una de las primeras técnicas que un atacante puede utilizar en una inyección SQL basada en booleanos es determinar la longitud de un campo en la base de datos. Esta información es crucial para ataques posteriores, ya que permite al atacante ajustar las inyecciones y extraer datos de manera más efectiva. Para obtener la longitud de un campo, el atacante envía consultas booleanas que evalúan la longitud de un campo específico y analiza las respuestas de la aplicación para inferir la longitud real.
+
+En primer lugar se va a hacer uso de la inyeccion en la base de datos Oracle, para ello se va a utilizar la siguiente inyección SQL para determinar la longitud del campo \textit{username} en la tabla \textit{usuarios}:
+
+En el usuario:
+
+\begin{lstlisting}[language=SQL]
+   ' OR (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En la contraseña se introduce cualquier valor válido.
+
+\textbf{Explicación de la inyección:}
+\begin{itemize}
+    \item \texttt{LENGTH(username) = 5}: Esta condición evalúa si la longitud del campo \texttt{username} es igual a 5. Si la condición es verdadera, se produce un error de división por cero (\texttt{1/0}), lo que indica al atacante que la longitud es 5. Si la condición es falsa, no se produce un error y el atacante puede inferir que la longitud es diferente de 5.
+    \item \texttt{ROWNUM AS rn FROM Usuarios WHERE rn=1}: Se utiliza para limitar la consulta a una sola fila, ya que la inyección booleana debe evaluar la longitud de un campo en una fila específica.
+    \item \texttt{1 = 1}: Es una condición siempre verdadera que se utiliza para mantener la consulta original válida y evitar errores de sintaxis.
+    \item \texttt{--}: Es un comentario que se utiliza para eliminar cualquier condición adicional en la consulta original, asegurando que la inyección se ejecute sin restricciones.
+    \item Al ejecutar esta inyección, el atacante puede inferir la longitud del campo \texttt{username} en la tabla \texttt{usuarios} basándose en la respuesta de la aplicación.
+    \item En el laboratorio, la aplicación responde de manera diferente si la longitud es correcta o incorrecta, lo que permite al atacante confirmar la longitud del campo.
+\end{itemize}
+
+En caso de ser correcta la longitud, la aplicación mostrará un mensaje de error, indicando que hay una división por cero, lo que indica que la longitud del campo es 5. El error es el siguiente: 
+
+\texttt{ORA-01476: el divisor es igual a cero }
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/BooleanSQLINumCT.png}
+    \caption{Determinación de la longitud del campo \textit{username} en Oracle}
+\end{figure}
+
+En cambio, si la longitud es incorrecta, la aplicación mostrará un mensaje de error diferente, indicando que la consulta no devolvió resultados.
+
+
+
 
 %Conclusiones (mostrar código de login seguro)
 %Anexo (Cajon desastre para codigo completo, ejecuciones completas, etc)
