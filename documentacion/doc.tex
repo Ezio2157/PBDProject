@@ -1,8 +1,8 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc} % Ensure the file is saved with UTF-8 encoding
+\usepackage[a4paper, margin=1in, footskip=1cm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}  % Para escribir en español
-\usepackage[a4paper, margin=1in]{geometry}
 \usepackage{graphicx}  % Para insertar imágenes
 \usepackage{geometry}  % Para ajustar los márgenes
 \usepackage{titling}   % Para personalizar el título
@@ -19,7 +19,6 @@
 \usepackage[hidelinks]{hyperref}
 
 \geometry{top=2cm,bottom=2cm,left=2cm,right=2cm}  % Márgenes personalizados
-
 \definecolor{mybeige}{RGB}{245, 245, 200}
 \definecolor{lightblue}{RGB}{173, 216, 230}
 \definecolor{lightgray}{RGB}{240, 240, 240}
@@ -42,6 +41,9 @@
 \fancyfoot[R]{\textit{Curso 2024-2025}}  % Texto a la derecha
 \renewcommand{\footrulewidth}{0.4pt}  % Línea encima del pie de página
 \setlength{\footskip}{0cm}
+
+\setlength{\textheight}{24cm} % Ajusta la altura del área de texto
+\setlength{\footskip}{2cm}    % Espacio entre el contenido y el pie de página
 
 % Configuración del entorno listings para resaltar el código Python
 \lstset{
@@ -691,7 +693,7 @@ que la comprobación de que el conjunto \textit{usuario} y \textit{contraseña} 
 de modo que esta comprobación siempre va a ser cierta por la segunda parte de la comprobación.
 
 \begin{lstlisting}[language=SQL]
-SELECT * FROM Usuarios WHERE username = '(*@\textbf{cualquier\_input}@*)' AND password = '(*@\textbf{cualquier\_input' OR 1=1 --}@*)'
+SELECT * FROM Usuarios WHERE username = 'cualquier_input' AND password = 'cualquier_input' OR 1=1 --'
 \end{lstlisting}
 
 Atendiendo al diccionario de inyecciones en el código de la aplicación, en el caso de las inyecciones basadas en errores de la base de datos, se estaria usando la función con la vulnerabilidad
@@ -727,7 +729,7 @@ que se sospecha que no exista, para forzar al sistema que devuelva un error y mu
 lo que hace que al conocer el error se pueda inferir información sobre el tipo de base de datos sobre la que se esta trabajando.
 
 \begin{lstlisting}[language=SQL]
-    SELECT * FROM Usuarios WHERE username = '(*@' OR 1=(SELECT * FROM tabla\_inexistente) --@*)' AND password = '(*@cualquier\_input@*)'
+    SELECT * FROM Usuarios WHERE username = '' OR 1=(SELECT * FROM tabla_inexistente) --' AND password = 'cualquier_input'
 \end{lstlisting}
 
 Del mismo modo en que se ha hecho en la inyección anterior, 
@@ -765,7 +767,7 @@ lo que hace que al conocer el error se pueda inferir información sobre el tipo 
 en caso de encontrar un caso en el que no se genere error, se puede inferir información sobre la estructura de la tabla.
 
 \begin{lstlisting}[language=SQL]
-    SELECT * FROM Usuarios WHERE username = '(*@\textbf{' OR 1=(SELECT columna\_inexistente FROM Usuarios) --}@*)' AND password = '(*@\textbf{cualquier\_input}@*)'
+    SELECT * FROM Usuarios WHERE username = '' OR 1=(SELECT columna_inexistente FROM Usuarios) --' AND password = 'cualquier_input'
 \end{lstlisting}
 
 Siguiendo con la linea definida en las inyecciones anteriores, 
@@ -783,40 +785,319 @@ en el caso de una posible ejecución usando el SGBD de Oracle se produciria el s
     \caption{Resultado de la inyección para información sobre las columnas de una tabla}
 \end{figure}
 
-\subsection{Código vulnerable del login}
+\subsection{Código vulnerable del login en Oracle}
+Esta función \texttt{login\_inseguro\_errors\_oracle} intenta realizar la autenticación de un usuario verificando su nombre de usuario y contraseña en una base de datos Oracle. A continuación, explicamos cada parte de la función en detalle.
+
+\subsubsection{Inicio de la Función}
+La función comienza con algunas impresiones de depuración:
 
 \begin{lstlisting}[language=Python]
-    def login_inseguro_errors_oracle(username, password):
-        print("---login---")
-        print ("---login_inseguro_errors---")
-        conexion = dbConectarOracle()  # Abre la conexión para autenticación
-        if not conexion:
-            print("Error: no se pudo conectar para autenticar.")
-            return False
-    
-        sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
-        try:
-            cursor = conexion.cursor()
-            cursor.execute(sentencia)
-            usuario = cursor.fetchone()
-    
-            cursor.close()
-            dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
-            if usuario:
-                print("Usuario autenticado:", usuario)
-                return {"resultado":usuario,"sentencia":sentencia, "auth":"true"}
+def login_inseguro_errors_oracle(username, password):
+    print("---login---")
+    print ("---login_inseguro_errors---")
+\end{lstlisting}
+
+Esto simplemente imprime un mensaje indicando que se ha llamado a la función, útil para seguimiento en logs.
+
+\subsubsection{Conexión a la Base de Datos}
+El siguiente bloque de código establece una conexión a la base de datos:
+
+\begin{lstlisting}[language=Python]
+    conexion = dbConectarOracle()  # Abre la conexión para autenticación
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Llama a la función \texttt{dbConectarOracle()} para intentar abrir una conexión.
+    \item Si no se logra establecer la conexión, muestra un mensaje de error y devuelve \texttt{False}.
+\end{itemize}
+
+\subsubsection{Construcción de la Consulta SQL}
+El siguiente bloque construye la consulta SQL para verificar las credenciales:
+
+\begin{lstlisting}[language=Python]
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Se genera una consulta SQL concatenando directamente el nombre de usuario y la contraseña.
+    \item \textbf{Problema de Seguridad:} Este método es altamente inseguro, ya que permite inyección SQL. Se debe utilizar consultas parametrizadas.
+\end{itemize}
+
+\subsubsection{Ejecución de la Consulta}
+La consulta se ejecuta y se verifica si el usuario existe:
+
+\begin{lstlisting}[language=Python]
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Se obtiene un cursor de la conexión para ejecutar la consulta.
+    \item \texttt{execute(sentencia)} ejecuta la consulta SQL.
+    \item \texttt{fetchone()} recupera el primer resultado, si existe.
+\end{itemize}
+
+\subsubsection{Cierre de la Conexión}
+Después de ejecutar la consulta, la conexión se cierra:
+
+\begin{lstlisting}[language=Python]
+        cursor.close()
+        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Se cierra el cursor para liberar recursos.
+    \item Se cierra la conexión a la base de datos con \texttt{dbDesconectar()}.
+\end{itemize}
+
+\subsubsection{Verificación del Usuario}
+El siguiente bloque determina si la autenticación fue exitosa:
+
+\begin{lstlisting}[language=Python]
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado":usuario,"sentencia":sentencia, "auth":"true"}
+        else:
+            print("Usuario o contraseña incorrectos")
+            return {"sentencia":sentencia}
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Si se recupera un usuario, se devuelve un diccionario con la información del usuario y la sentencia SQL utilizada.
+    \item Si no, se indica que las credenciales son incorrectas.
+\end{itemize}
+
+\subsubsection{Manejo de Errores}
+El bloque \texttt{try-except} captura errores durante la ejecución:
+
+\begin{lstlisting}[language=Python]
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario")
+        print(error)
+        dbDesconectar(conexion)
+        return {"resultado":error, "sentencia":sentencia}
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Si ocurre un error durante la consulta, se captura y se muestra el mensaje de error.
+    \item Se asegura que la conexión se cierre en caso de error.
+    \item Devuelve un diccionario con el error y la sentencia SQL utilizada.
+\end{itemize}
+
+\subsubsection{Resumen de Problemas de Seguridad}
+\begin{itemize}
+    \item La concatenación de cadenas en la consulta SQL permite ataques de inyección SQL.
+    \item No se utiliza un sistema de autenticación seguro ni se implementan medidas de encriptación para las contraseñas.
+\end{itemize}
+
+\subsubsection{Código Completo}
+\begin{lstlisting}[language=Python]
+def login_inseguro_errors_oracle(username, password):
+    print("---login---")
+    print ("---login_inseguro_errors---")
+    conexion = dbConectarOracle()  # Abre la conexión para autenticación
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+
+        cursor.close()
+        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado":usuario,"sentencia":sentencia, "auth":"true"}
+        else:
+            print("Usuario o contraseña incorrectos")
+            return {"sentencia":sentencia}
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario")
+        print(error)
+        dbDesconectar(conexion)
+        return {"resultado":error, "sentencia":sentencia}
+\end{lstlisting}
+
+\subsection{Código vulnerable del login en PostgreSQL}
+
+Esta función \texttt{login\_inseguro\_errors\_postgresql} intenta realizar la autenticación de un usuario verificando su nombre de usuario y contraseña en una base de datos PostgreSQL. A continuación, explicamos cada parte de la función en detalle.
+
+\subsubsection{Inicio de la Función}
+La función comienza con algunas impresiones de depuración:
+
+\begin{lstlisting}[language=Python]
+def login_inseguro_errors_postgresql(username, password):
+    print("---login---")
+    print ("---login_inseguro_errors---")
+\end{lstlisting}
+
+Esto simplemente imprime un mensaje indicando que se ha llamado a la función, útil para seguimiento en logs.
+
+\subsubsection{Conexión a la Base de Datos}
+El siguiente bloque de código establece una conexión a la base de datos:
+
+\begin{lstlisting}[language=Python]
+    conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Llama a la función \texttt{dbConectarPostgreSQL()} para intentar abrir una conexión.
+    \item Si no se logra establecer la conexión, muestra un mensaje de error y devuelve \texttt{False}.
+\end{itemize}
+
+\subsubsection{Construcción de la Consulta SQL}
+El siguiente bloque construye la consulta SQL para verificar las credenciales:
+
+\begin{lstlisting}[language=Python]
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Se genera una consulta SQL concatenando directamente el nombre de usuario y la contraseña.
+    \item \textbf{Problema de Seguridad:} Este método es altamente inseguro, ya que permite inyección SQL. Se debe utilizar consultas parametrizadas.
+\end{itemize}
+
+\subsubsection{Ejecución de la Consulta}
+La consulta se ejecuta y se verifica si el usuario existe:
+
+\begin{lstlisting}[language=Python]
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Se obtiene un cursor de la conexión para ejecutar la consulta.
+    \item \texttt{execute(sentencia)} ejecuta la consulta SQL.
+    \item \texttt{fetchone()} recupera el primer resultado, si existe.
+\end{itemize}
+
+\subsubsection{Cierre de la Conexión}
+Después de ejecutar la consulta, la conexión se cierra:
+
+\begin{lstlisting}[language=Python]
+        cursor.close()
+        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Se cierra el cursor para liberar recursos.
+    \item Se cierra la conexión a la base de datos con \texttt{dbDesconectar()}.
+\end{itemize}
+
+\subsubsection{Verificación del Usuario}
+El siguiente bloque determina si la autenticación fue exitosa:
+
+\begin{lstlisting}[language=Python]
+        if usuario:
+            if isinstance(usuario, tuple) and len(usuario) == 3:
+                return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
             else:
-                print("Usuario o contraseña incorrectos")
-                return {"sentencia":sentencia}
-        except PBD.DatabaseError as error:
-            print("Error al autenticar usuario")
-            print(error)
-            dbDesconectar(conexion)
-            return {"resultado":error, "sentencia":sentencia}
-    \end{lstlisting}
-    
-La vulnerabilidad se encuentra en la concatenación de los valores de los campos \textit{usuario} y \textit{contraseña} en la consulta SQL, 
-lo que permite al atacante manipular la lógica de la consulta para obtener acceso no autorizado al sistema; tal y como se ha visto anteriormente.
+                print("Usuario autenticado:", usuario)
+                return {"resultado": usuario, "sentencia": sentencia}
+        else:
+            print("Usuario o contraseña incorrectos")
+            return {"sentencia": sentencia}
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Si se recupera un usuario:
+    \begin{itemize}
+        \item Si el resultado es una tupla de longitud 3, se devuelve un diccionario con los datos del usuario, la sentencia SQL y un indicador de autenticación exitosa.
+        \item En caso contrario, se devuelve un diccionario con los datos del usuario y la sentencia SQL.
+    \end{itemize}
+    \item Si no se encuentra el usuario, indica que las credenciales son incorrectas y devuelve únicamente la consulta SQL.
+\end{itemize}
+
+\subsubsection{Manejo de Errores}
+El bloque \texttt{try-except} captura errores durante la ejecución:
+
+\begin{lstlisting}[language=Python]
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario")
+        print(error)
+        dbDesconectar(conexion)
+        return {"resultado":error, "sentencia":sentencia}
+\end{lstlisting}
+
+\textbf{Explicación:}
+\begin{itemize}
+    \item Si ocurre un error durante la consulta, se captura y se muestra el mensaje de error.
+    \item Se asegura que la conexión se cierre en caso de error.
+    \item Devuelve un diccionario con el error y la sentencia SQL utilizada.
+\end{itemize}
+
+\subsubsection{Resumen de Problemas de Seguridad}
+\begin{itemize}
+    \item La concatenación de cadenas en la consulta SQL permite ataques de inyección SQL.
+    \item No se utiliza un sistema de autenticación seguro ni se implementan medidas de encriptación para las contraseñas.
+    \item La función asume que los datos en la base de datos están estructurados de una forma específica, sin validación adicional.
+\end{itemize}
+
+\subsubsection{Código Completo}
+\begin{lstlisting}[language=Python]
+def login_inseguro_errors_postgresql(username, password):
+    print("---login---")
+    print ("---login_inseguro_errors---")
+    conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+
+        cursor.close()
+        dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+        if usuario:
+            if isinstance(usuario, tuple) and len(usuario) == 3:
+                return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+            else:
+                print("Usuario autenticado:", usuario)
+                return {"resultado": usuario, "sentencia": sentencia}
+        else:
+            print("Usuario o contraseña incorrectos")
+            return {"sentencia": sentencia}
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario")
+        print(error)
+        dbDesconectar(conexion)
+        return {"resultado":error, "sentencia":sentencia}
+\end{lstlisting}
+
+\subsection{Diferenciación con PostgreSQL}
+
+Todos los tipos de inyección usan las mismas
+
+
+
+
 
 \section{Inyección basada en Union Attack}
 La inyección SQL basada en \textbf{UNION} es una técnica en la que un atacante utiliza la cláusula UNION para combinar los resultados de una consulta legítima con datos maliciosamente solicitados, permitiendo extraer información sensible de la base de datos. 
@@ -1144,14 +1425,13 @@ def login_inseguro_base_postgresql(username, password):
         return {"resultado": error, "sentencia": sentencia}
 \end{lstlisting}
 
-%#### Localización de la vulnerabilidad
-La vulnerabilidad está en la construcción de la variable \texttt{sentencia}, donde se concatena directamente la entrada del usuario:
+\textbf{Localización de la vulnerabilidad}: La vulnerabilidad está en la construcción de la variable \texttt{sentencia}, donde se concatena directamente la entrada del usuario.
 
 \begin{lstlisting}[language=Python]
 sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
 \end{lstlisting}
 
-%#### Versión segura del código
+\subsubsection{Versión segura del código en Postgre}
 En PostgreSQL, se deben usar consultas parametrizadas con \texttt{psycopg2}:
 
 \begin{lstlisting}[language=Python]
@@ -1159,10 +1439,10 @@ def login_seguro_base_postgresql(username, password):
     conexion = dbConectarPostgreSQL()
     if not conexion:
         return False
-    sentencia = "SELECT * FROM Usuarios WHERE username = %s AND password = %s"
+        sentencia = "SELECT * FROM Usuarios WHERE (*@\colorbox{yellow}{username = \%s AND password = \%s}@*)"
     try:
         cursor = conexion.cursor()
-        cursor.execute(sentencia, (username, password))
+        cursor.execute(sentencia, ((*@\colorbox{yellow}{username, password}@*)))
         usuario = cursor.fetchall()
         cursor.close()
         if usuario:
@@ -1173,14 +1453,11 @@ def login_seguro_base_postgresql(username, password):
         return {"resultado": error}
 \end{lstlisting}
 
-%------------------------------------------------------------------------------------------------------
-
 \section{Inyección basada en Booleanos}
-\subsection{Boolean-Based SQL Injection}
 
 La inyección SQL basada en booleanos es una técnica en la que un atacante explota vulnerabilidades en las consultas SQL de una aplicación para inferir información sobre la base de datos. Este ataque se basa en el análisis de las respuestas de la aplicación web a consultas booleanas, es decir, aquellas que evalúan condiciones como verdaderas o falsas. A diferencia de otros métodos, esta técnica no requiere acceso directo a los resultados de la base de datos; en su lugar, el atacante utiliza las diferencias en las respuestas de la aplicación (como cambios en el contenido, mensajes de error o tiempo de carga) para deducir información sensible. Prevenir este tipo de ataques requiere una estricta validación de entradas, el uso de consultas parametrizadas y una adecuada configuración de los mensajes de error.
 
-\subsubsection{Mecanismo del ataque}
+\subsection{Mecanismo del ataque}
 
 \begin{enumerate}
     \item \textbf{Identificación de puntos vulnerables:} El atacante busca parámetros de entrada en la aplicación web que interactúan directamente con la base de datos. Esto puede incluir campos de formularios, parámetros en la URL, cookies o encabezados HTTP. Una vez localizado un punto vulnerable, el atacante comienza a probar diferentes inyecciones booleanas.
@@ -1226,15 +1503,23 @@ Se puede observar también la descripción de la inyección, su grado de dificul
 
 Una de las primeras técnicas que un atacante puede utilizar en una inyección SQL basada en booleanos es determinar la longitud de un campo en la base de datos. Esta información es crucial para ataques posteriores, ya que permite al atacante ajustar las inyecciones y extraer datos de manera más efectiva. Para obtener la longitud de un campo, el atacante envía consultas booleanas que evalúan la longitud de un campo específico y analiza las respuestas de la aplicación para inferir la longitud real.
 
+\vspace{0,5cm}
+
 En primer lugar se va a hacer uso de la inyeccion en la base de datos Oracle, para ello se va a utilizar la siguiente inyección SQL para determinar la longitud del campo \textit{username} en la tabla \textit{usuarios}:
+
+\vspace{0,5cm}
 
 En el usuario:
 
 \begin{lstlisting}[language=SQL]
-   ' OR (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+' OR (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
 \end{lstlisting}
+\vspace{0,5cm}
+
 
 En la contraseña se introduce cualquier valor válido.
+\vspace{0,5cm}
+
 
 \textbf{Explicación de la inyección:}
 \begin{itemize}
@@ -1246,17 +1531,341 @@ En la contraseña se introduce cualquier valor válido.
     \item En el laboratorio, la aplicación responde de manera diferente si la longitud es correcta o incorrecta, lo que permite al atacante confirmar la longitud del campo.
 \end{itemize}
 
+\vspace{0,5cm}
+
 En caso de ser correcta la longitud, la aplicación mostrará un mensaje de error, indicando que hay una división por cero, lo que indica que la longitud del campo es 5. El error es el siguiente: 
 
-\texttt{ORA-01476: el divisor es igual a cero }
-
+\begin{center}
+    \texttt{ORA-01476: el divisor es igual a cero}
+    \end{center}
+    
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Imagenes/BooleanSQLINumCT.png}
     \caption{Determinación de la longitud del campo \textit{username} en Oracle}
 \end{figure}
 
-En cambio, si la longitud es incorrecta, la aplicación mostrará un mensaje de error diferente, indicando que la consulta no devolvió resultados.
+En cambio, si la longitud es incorrecta, la aplicación mostrará un mensaje de error diferente, indicando que las credenciales son incorrectas.
+
+\vspace{0,5cm}
+
+Esta inyección podría ser automatizada mediante un script que pruebe diferentes longitudes hasta encontrar la correcta, lo que permitiría al atacante obtener información sobre la estructura de la base de datos de manera más eficiente.
+
+\vspace{0,5cm}
+
+
+\subsection{Obtención de un carácter específico de un campo}
+
+Una vez que el atacante ha determinado la longitud de un campo, puede proceder a extraer caracteres específicos de ese campo utilizando inyecciones SQL basadas en booleanos. Este proceso implica enviar consultas que evalúan caracteres individuales en una posición determinada y analizar las respuestas de la aplicación para inferir el contenido real del campo.
+
+\vspace{0,5cm}
+
+En el caso de la base de datos Oracle, se va a utilizar la siguiente inyección SQL para obtener el primer carácter del campo \textit{username} en la tabla \textit{usuarios}:
+
+\vspace{0,5cm}
+
+En el usuario:
+
+\begin{lstlisting}[language=SQL]
+    ' OR (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En la contraseña se introduce cualquier valor válido.
+
+\vspace{0,5cm}
+
+\textbf{Explicación de la inyección:}
+
+\begin{itemize}
+    \item \texttt{SUBSTR(username, 1, 1) = 'a'}: Esta condición evalúa si el primer carácter del campo \texttt{username} es igual a \texttt{'a'}. Si la condición es verdadera, se produce un error de división por cero (\texttt{1/0}), lo que indica al atacante que el carácter es \texttt{'a'}. Si la condición es falsa, no se produce un error y el atacante puede inferir que el carácter es diferente de \texttt{'a'}.
+    \item \texttt{ROWNUM AS rn FROM Usuarios WHERE rn=1}: Se utiliza para limitar la consulta a una sola fila, ya que la inyección booleana debe evaluar el carácter en una fila específica.
+    \item \texttt{1 = 1}: Es una condición siempre verdadera que se utiliza para mantener la consulta original válida y evitar errores de sintaxis.
+    \item \texttt{--}: Es un comentario que se utiliza para eliminar cualquier condición adicional en la consulta original, asegurando que la inyección se ejecute sin restricciones.
+    \item Al ejecutar esta inyección, el atacante puede inferir el primer carácter del campo \texttt{username} en la tabla \texttt{usuarios} basándose en la respuesta de la aplicación.
+    \item En el laboratorio, la aplicación responde de manera diferente si el carácter es correcto o incorrecto, lo que permite al atacante confirmar el contenido del campo.
+
+\end{itemize}
+
+En caso de ser correcto el carácter, la aplicación mostrará un mensaje de error, indicando que hay una división por cero, lo que indica que el primer carácter del campo es \texttt{'a'}. El error es el siguiente:
+
+\begin{center}
+    \texttt{ORA-01476: el divisor es igual a cero}
+    \end{center}
+
+\begin{figure}[H]
+
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/BooleanSQLICharCT.png}
+    \caption{Obtención del primer carácter del campo \textit{username} en Oracle}
+\end{figure}
+
+En cambio, si el carácter es incorrecto, la aplicación mostrará un mensaje de error diferente, indicando que las credenciales son incorrectas.
+
+\vspace{0,5cm}
+
+Este proceso, al igual que el anterior, podría ser automatizado mediante un script que pruebe diferentes caracteres hasta encontrar el correcto, lo que permitiría al atacante extraer información sobre el contenido real del campo de manera más eficiente. Seria posible obtener el contenido completo del campo, caracter por caracter.
+
+\vspace{0,5cm}
+
+\subsection{Código utilizado en el laboratorio}
+
+En esta inyección, se reutiliza la lógica de login de las inyecciones Union-Attack, ya que la vulnerabilidad se encuentra en la misma parte del código. A continuación, se muestra el código vulnerable en Python para el login en Oracle, que permite la inyección SQL basada en booleanos:
+\vspace{0,5cm}
+
+
+\begin{lstlisting}[language=Python]
+def login_inseguro_base_oracle(username, password):
+    conexion = dbConectarOracle()
+    if not conexion:
+        return False
+    sentencia = "SELECT * FROM Usuarios WHERE username = '"+username+"' AND password = '"+password+"'"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchall()
+        cursor.close()
+        if usuario:
+            return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+        else:
+            return {"sentencia": sentencia}
+    except PBD.DatabaseError as error:
+        return {"resultado": error, "sentencia": sentencia}
+\end{lstlisting}
+
+\vspace{0,5cm}
+
+\textbf{Localización de la vulnerabilidad:} La vulnerabilidad se encuentra en la construcción de la variable \texttt{sentencia}, donde los valores proporcionados por el usuario se concatenan directamente en la consulta SQL.
+
+\vspace{0,5cm}
+
+\subsection{Excepción de las inyecciones Boolean en PostgreSQL}
+
+En el caso de nuestro laboratorio, el cual está diseñado para usarse con una inyección mediante división por cero, no es posible implementar la inyección en PostgreSQL, ya que este sistema analiza la consulta completa antes de ejecutarse, y si encuentra un error, no se ejecuta y lanza error.
+
+En cambio, se podría realizar intentando buscar otra lógica en la consulta que permita inferir la información deseada.
+%-----------------------------------------------------------------------------------------------
+\section{Inyecciones Blind en SQL}
+Las inyecciones SQL \textbf{Blind} son un tipo de ataque en el que un atacante puede inferir información sobre la base de datos a pesar de que la aplicación no proporciona mensajes de error explícitos o respuestas directas. A diferencia de las inyecciones SQL tradicionales, en las que los resultados de las consultas maliciosas pueden ser visibles en la interfaz de la aplicación, las inyecciones \textbf{Blind} se basan en observar diferencias en el comportamiento de la aplicación para deducir información sensible.
+
+Este tipo de ataque es especialmente efectivo en aplicaciones que han implementado medidas básicas de seguridad, como la supresión de mensajes de error, pero que siguen siendo vulnerables debido a la falta de validación adecuada de las entradas del usuario.
+
+\subsection{Características principales de las inyecciones Blind}
+
+\begin{itemize}
+    \item \textbf{Ausencia de mensajes de error:} 
+    Las aplicaciones vulnerables no muestran mensajes de error explícitos, lo que obliga al atacante a depender de métodos indirectos para extraer información.
+
+    \item \textbf{Dependencia del comportamiento de la aplicación:} 
+    El atacante analiza cómo responde la aplicación a diferentes condiciones (por ejemplo, cambios en el contenido de las páginas, duración de las respuestas, etc.).
+
+    \item \textbf{Ataques iterativos:} 
+    Este tipo de ataque a menudo requiere múltiples consultas para extraer información carácter por carácter o bit por bit, lo que lo hace más lento que otros tipos de inyecciones SQL.
+\end{itemize}
+
+\subsection{Tipos de inyecciones Blind}
+
+Existen varios métodos para llevar a cabo ataques Blind, dependiendo de cómo se infiera la información de la base de datos. En este laboratorio se explorarán principalmente dos tipos de inyecciones Blind:
+
+\begin{itemize}
+    \item \textbf{Basadas en condiciones booleanas:}
+    Este método utiliza consultas con condiciones booleanas (\texttt{TRUE} o \texttt{FALSE}) para observar cómo cambia el comportamiento de la aplicación. Por ejemplo, un atacante podría enviar una consulta como \texttt{' OR '1'='1'} para verificar si la condición se evalúa como verdadera.
+
+    \item \textbf{Basadas en tiempo:}
+    Este enfoque utiliza funciones de retardo en SQL, como \texttt{SLEEP()} en PostgreSQL o \texttt{DBMS\_LOCK.SLEEP()} en Oracle, para medir el tiempo de respuesta de la aplicación. Si la aplicación tarda más en responder, el atacante puede inferir que la consulta fue evaluada como verdadera.
+
+    \item \textbf{Basadas en diferencias de contenido:}
+    En este método, el atacante compara los cambios en el contenido devuelto por la aplicación para determinar si una condición se cumple. Por ejemplo, un mensaje de éxito o error podría indicar el resultado de la consulta.
+\end{itemize}
+
+\subsection{Objetivos de las inyecciones Blind}
+
+El propósito principal de una inyección Blind es obtener información sensible de la base de datos, como:
+\begin{itemize}
+    \item Nombres de tablas y columnas.
+    \item Estructura de la base de datos.
+    \item Datos confidenciales, como credenciales de usuarios.
+\end{itemize}
+
+Aunque las inyecciones Blind suelen requerir más tiempo que otros tipos de ataques debido a su naturaleza iterativa, son altamente efectivas en aplicaciones donde no se permiten mensajes de error explícitos.
+
+\subsection{Ejemplo básico de una inyección Blind basada en booleanos}
+
+Supongamos que un atacante intenta determinar si el usuario \texttt{admin} existe en la base de datos mediante el siguiente payload:
+
+\begin{lstlisting}[language=SQL]
+admin' AND '1'='1' --
+\end{lstlisting}
+
+Si la aplicación responde positivamente (por ejemplo, mostrando un mensaje de éxito), el atacante deduce que el usuario \texttt{admin} existe. Si, en cambio, introduce una condición que siempre es falsa:
+
+\begin{lstlisting}[language=SQL]
+admin' AND '1'='2' --
+\end{lstlisting}
+
+Y la aplicación responde negativamente (por ejemplo, mostrando un mensaje de error o devolviendo una página en blanco), el atacante puede confirmar su hipótesis. Este proceso puede extenderse para obtener más información sobre la base de datos.
+
+\subsection{Importancia de prevenir este tipo de ataques}
+
+Aunque las inyecciones Blind no proporcionan información directa, son una herramienta poderosa para los atacantes que buscan explotar vulnerabilidades en aplicaciones web. Prevenir este tipo de ataques es esencial para proteger la confidencialidad, integridad y disponibilidad de los datos almacenados en la base de datos.
+
+Medidas como la validación estricta de entradas, el uso de consultas parametrizadas y la reducción de diferencias en las respuestas de la aplicación son fundamentales para mitigar el riesgo de inyecciones SQL Blind.
+
+\section{Inyección Blind basada en condiciones booleanas}
+
+
+
+
+
+%-----------------------------------------------------------------------------------------------
+
+
+
+\section{Inyección Blind basada en tiempo}
+
+
+La inyección SQL basada en tiempo es una técnica utilizada para explotar vulnerabilidades en aplicaciones que interactúan con bases de datos. Este tipo de ataque pertenece a la categoría de \textbf{inyección SQL ciega} y se caracteriza por depender del tiempo de respuesta del servidor para deducir información de la base de datos.
+
+\subsection{¿Cómo Funciona?}
+
+\begin{enumerate}
+    \item \textbf{Manipulación de consultas SQL:}  
+    El atacante envía una entrada maliciosa que incluye comandos SQL diseñados para retrasar deliberadamente la respuesta del servidor.
+
+    \item \textbf{Uso de funciones de espera:}  
+    Se utilizan funciones específicas del sistema de base de datos para generar retrasos controlados. En PostgreSQL, una función comúnmente explotada es \texttt{pg\_sleep(n)}, que pausa la ejecución por \texttt{n} segundos.
+
+    \item \textbf{Interpretación del tiempo de respuesta:}  
+    \begin{itemize}
+        \item Si el servidor se detiene durante el tiempo especificado, el atacante deduce que la condición evaluada es verdadera.
+        \item Si no hay retraso, la condición evaluada es falsa.
+    \end{itemize}
+
+    \item \textbf{Extracción de información:}  
+    A través de múltiples consultas condicionales, el atacante deduce información sensible, como nombres de bases de datos, tablas o credenciales.
+\end{enumerate}
+
+\subsection{Ejemplo Práctico}
+
+Supongamos que la aplicación ejecuta una consulta SQL vulnerable como la siguiente:
+
+\begin{lstlisting}[language=SQL]
+SELECT * FROM usuarios WHERE nombre = '${input}' AND contrasena = '${password}';
+\end{lstlisting}
+
+Un atacante podría enviar la siguiente entrada maliciosa para deducir el primer carácter del nombre de la base de datos:
+
+\begin{lstlisting}[language=SQL]
+' OR (CASE WHEN SUBSTRING((SELECT current_database()), 1, 1) = 'n' THEN pg_sleep(5) ELSE pg_sleep(0) END) --
+\end{lstlisting}
+
+Esto generará la siguiente consulta:
+
+\begin{lstlisting}[language=SQL]
+SELECT * FROM usuarios 
+WHERE nombre = '' OR 
+      (CASE WHEN SUBSTRING((SELECT current_database()), 1, 1) = 'n' 
+            THEN pg_sleep(5) 
+            ELSE pg_sleep(0) END) -- 
+AND contrasena = '';
+\end{lstlisting}
+
+\textbf{Interpretación de resultados:}
+\begin{itemize}
+    \item Si la consulta provoca un retraso de 5 segundos, el atacante sabe que el primer carácter del nombre de la base de datos es \texttt{'n'}.
+    \item Si no hay retraso, el carácter es diferente.
+\end{itemize}
+
+El proceso se repite para deducir cada carácter del nombre de la base de datos, reconstruyendo la información deseada.
+Todo esto se puede automatizar mediante la implementación de scripts. Posteriormente veremos un ejemplo práctico de un script implementado para extraer datos
+del laboratorio propuesto.
+
+\subsection{Inyecciones implementadas}
+
+En esta subsección presentamos varias variantes de inyecciones SQL basadas en tiempo que se aplican sobre un escenario ya descrito. Estas inyecciones permiten extraer información sin necesidad de recibir directamente datos sensibles en la respuesta, simplemente utilizando el comportamiento temporal de la base de datos para validar hipótesis sobre cada carácter.
+
+El patrón general del ataque es el siguiente:
+\begin{enumerate}
+    \item Formular una consulta que compare un cierto prefijo \{\texttt{p}\} de la cadena que se desea descubrir con el valor real truncado a \{\texttt{i}\} caracteres.
+    \item Si el prefijo no coincide, la consulta no introduce retraso. Esta respuesta inmediata le indica al atacante que la hipótesis \{\texttt{p}\} es incorrecta.
+    \item Si el prefijo coincide, la consulta desencadena una función de retardo (como \texttt{pg\_sleep}), provocando una demora en la respuesta. Dicha demora actúa como una señal para el atacante, confirmando que el prefijo es correcto.
+    \item El atacante repite el proceso carácter a carácter, refinando el prefijo \{\texttt{p}\} hasta descubrir la totalidad de la cadena objetivo (ya sea un nombre de usuario, el nombre de la base de datos, una combinación de usuario-contraseña, etc.).
+\end{enumerate}
+
+A continuación, se presentan tres ejemplos concretos de inyecciones, cada uno orientado a extraer información diferente. En todos los casos, se asume que el atacante:
+\begin{itemize}
+    \item Conoce la existencia de las tablas o funciones involucradas (por ejemplo, \texttt{Usuarios}, \texttt{current\_database()}).
+    \item Itera sobre un conjunto de posibles caracteres (letras, dígitos, signos) y valida, paso a paso, cuál es el carácter correcto en cada posición.
+\end{itemize}
+
+\subsubsection*{Inyección para obtener ``nombres de usuario''}
+
+\begin{lstlisting}[language=SQL]
+' AND ( 
+    LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) <> '{p}' 
+    OR ( 
+        LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) = '{p}' 
+        AND ( SELECT NULL FROM pg_sleep(2) ) IS NULL 
+    ) 
+) --
+\end{lstlisting}
+
+\textbf{Proceso de ataque:}
+\begin{enumerate}
+    \item El atacante selecciona un prefijo \texttt{\{p\}} y una posición \texttt{\{i\}} (por ejemplo, el primer carácter del primer nombre de usuario).
+    \item Inyecta la consulta forzando a que, si el prefijo actual es correcto, se ejecute \texttt{pg\_sleep(2)}. Si la respuesta del servidor tarda 2 segundos, el atacante sabe que ese prefijo (hasta la \texttt{\{i\}-ésima posición}) es correcto.
+    \item Si la respuesta es inmediata, el prefijo es incorrecto. El atacante entonces prueba con otro carácter, hasta encontrar el que provoca el retardo.
+    \item Una vez confirmado un carácter, incrementa \texttt{\{i\}} para probar el siguiente, repitiendo este proceso caracter a caracter.
+    \item De este modo, va descubriendo todos los nombres de usuario concatenados por comas.
+\end{enumerate}
+
+\subsubsection*{Inyección para obtener ``nombres de la base de datos''}
+
+\begin{lstlisting}[language=SQL]
+'
+  AND (
+    left(current_database(), {i}) <> '{p}' 
+    OR (
+      left(current_database(), {i}) = '{p}' 
+      AND EXISTS (SELECT 1 FROM pg_sleep(1))
+    )
+  )
+--
+\end{lstlisting}
+
+\textbf{Proceso de ataque:}
+\begin{enumerate}
+    \item El atacante comienza intentando adivinar el primer carácter del nombre de la base de datos. Usa un prefijo \texttt{\{p\}} de longitud 1 (por ejemplo, \texttt{'a'}) y establece \texttt{\{i\} = 1}.
+    \item Inyecta la consulta. Si \texttt{left(current\_database(), 1) = 'a'} es cierto, la consulta entra en la parte que ejecuta \texttt{pg\_sleep(1)}, produciendo un retraso.  
+    \item Si no hay retraso, el atacante prueba otro carácter en lugar de \texttt{'a'}, digamos \texttt{'b'}, y así sucesivamente, hasta provocar la demora.
+    \item Una vez acertado el primer carácter, incrementa \texttt{\{i\}} a 2 y repite el procedimiento con el prefijo de dos caracteres. Continúa así sucesivamente hasta reconstruir el nombre completo de la base de datos.
+\end{enumerate}
+
+\subsubsection*{Inyección para obtener ``Usuarios y Contraseñas concatenados''}
+
+\begin{lstlisting}[language=SQL]
+' AND (
+    LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), {i}) <> '{p}'
+    OR (
+      LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), {i}) = '{p}'
+      AND EXISTS (SELECT 1 FROM pg_sleep(1))
+    )
+)
+--
+\end{lstlisting}
+
+\textbf{Proceso de ataque:}
+\begin{enumerate}
+    \item El atacante sabe que la tabla \texttt{Usuarios} contiene nombres de usuario y contraseñas, y que la inyección generará una cadena del tipo \texttt{"usuario1:password1,usuario2:password2,\dots"}.
+    \item Comienza adivinando el primer carácter del primer par \texttt{usuario:password}. Inserta un carácter candidato en \texttt{\{p\}} y usa \texttt{\{i\} = 1}.
+    \item Si el servidor tarda 1 segundo (por el \texttt{pg\_sleep(1)}), el atacante confirma que el primer carácter es el correcto. De lo contrario, prueba con otro carácter.
+    \item Al encontrar el primer carácter, pasa al segundo (\texttt{\{i\} = 2}), manteniendo el prefijo correcto anterior, y repite la operación.
+    \item De este modo, el atacante recupera usuario y contraseña de cada cuenta, concatenados y separados por comas.
+\end{enumerate}
+
+\medskip
+
+Estas tres variantes ilustran cómo el atacante, combinando condiciones lógicas, funciones de truncado de cadena y funciones de pausa (como \texttt{pg\_sleep}), puede filtrar información sensible de una base de datos paso a paso. El mecanismo se basa en la misma idea fundamental: el retraso deliberado confirma una hipótesis y la ausencia de retraso la niega, funcionando así como un canal encubierto de extracción de datos.
+
 
 
 
