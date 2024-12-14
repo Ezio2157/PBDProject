@@ -1,76 +1,113 @@
 \babel@toc {spanish}{}\relax 
-\contentsline {section}{\numberline {1}Introducción al proyecto}{3}{section.1}%
-\contentsline {section}{\numberline {2}Inyección SQL}{4}{section.2}%
-\contentsline {subsection}{\numberline {2.1}¿Qué es una inyección SQL?}{4}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Causa principal de las inyecciones SQL}{5}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Tipos de inyecciones SQL}{7}{subsection.2.3}%
-\contentsline {section}{\numberline {3}Preparación del entorno}{8}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Prerequisitos}{8}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Requerimientos de ejecución}{8}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Conexión de la base de datos}{9}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Oracle}{9}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}PostgreSQL}{10}{subsection.4.2}%
-\contentsline {section}{\numberline {5}Creación de tablas}{11}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Oracle}{11}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}PostgreSQL}{12}{subsection.5.2}%
-\contentsline {section}{\numberline {6}Introducción al laboratorio}{13}{section.6}%
-\contentsline {section}{\numberline {7}Inyección basada en errores de la base de datos}{13}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Mecanismo del Ataque}{13}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}Login sin credenciales válidas}{15}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Información sobre las tablas}{17}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}Información sobre las columnas de una tabla}{18}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}Código vulnerable del login en Oracle}{19}{subsection.7.5}%
-\contentsline {subsubsection}{\numberline {7.5.1}Inicio de la Función}{19}{subsubsection.7.5.1}%
-\contentsline {subsubsection}{\numberline {7.5.2}Conexión a la Base de Datos}{19}{subsubsection.7.5.2}%
-\contentsline {subsubsection}{\numberline {7.5.3}Construcción de la Consulta SQL}{19}{subsubsection.7.5.3}%
-\contentsline {subsubsection}{\numberline {7.5.4}Ejecución de la Consulta}{20}{subsubsection.7.5.4}%
-\contentsline {subsubsection}{\numberline {7.5.5}Cierre de la Conexión}{20}{subsubsection.7.5.5}%
-\contentsline {subsubsection}{\numberline {7.5.6}Verificación del Usuario}{20}{subsubsection.7.5.6}%
-\contentsline {subsubsection}{\numberline {7.5.7}Manejo de Errores}{21}{subsubsection.7.5.7}%
-\contentsline {subsubsection}{\numberline {7.5.8}Resumen de Problemas de Seguridad}{21}{subsubsection.7.5.8}%
-\contentsline {subsubsection}{\numberline {7.5.9}Código Completo}{21}{subsubsection.7.5.9}%
-\contentsline {subsection}{\numberline {7.6}Código vulnerable del login en PostgreSQL}{22}{subsection.7.6}%
-\contentsline {subsubsection}{\numberline {7.6.1}Inicio de la Función}{22}{subsubsection.7.6.1}%
-\contentsline {subsubsection}{\numberline {7.6.2}Conexión a la Base de Datos}{22}{subsubsection.7.6.2}%
-\contentsline {subsubsection}{\numberline {7.6.3}Construcción de la Consulta SQL}{22}{subsubsection.7.6.3}%
-\contentsline {subsubsection}{\numberline {7.6.4}Ejecución de la Consulta}{23}{subsubsection.7.6.4}%
-\contentsline {subsubsection}{\numberline {7.6.5}Cierre de la Conexión}{23}{subsubsection.7.6.5}%
-\contentsline {subsubsection}{\numberline {7.6.6}Verificación del Usuario}{23}{subsubsection.7.6.6}%
-\contentsline {subsubsection}{\numberline {7.6.7}Manejo de Errores}{24}{subsubsection.7.6.7}%
-\contentsline {subsubsection}{\numberline {7.6.8}Resumen de Problemas de Seguridad}{24}{subsubsection.7.6.8}%
-\contentsline {subsubsection}{\numberline {7.6.9}Código Completo}{24}{subsubsection.7.6.9}%
-\contentsline {subsection}{\numberline {7.7}Diferenciación con PostgreSQL}{25}{subsection.7.7}%
-\contentsline {section}{\numberline {8}Inyección basada en Union Attack}{25}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Mecanismo del ataque}{25}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Obtención de nombre de la base de datos}{26}{subsection.8.2}%
-\contentsline {subsubsection}{\numberline {8.2.1}Explicación del funcionamiento}{27}{subsubsection.8.2.1}%
-\contentsline {subsection}{\numberline {8.3}Obtención de la versión de la base de datos}{27}{subsection.8.3}%
-\contentsline {subsubsection}{\numberline {8.3.1}Explicación del funcionamiento}{28}{subsubsection.8.3.1}%
-\contentsline {subsection}{\numberline {8.4}Obtención de todas las tablas de la base de datos}{28}{subsection.8.4}%
-\contentsline {subsubsection}{\numberline {8.4.1}Explicación del funcionamiento}{29}{subsubsection.8.4.1}%
-\contentsline {subsection}{\numberline {8.5}Diferencias de las inyecciones en PostgreSQL}{31}{subsection.8.5}%
-\contentsline {subsubsection}{\numberline {8.5.1}Obtención del nombre de la base de datos}{31}{subsubsection.8.5.1}%
-\contentsline {subsubsection}{\numberline {8.5.2}Obtención de la versión de la base de datos}{32}{subsubsection.8.5.2}%
-\contentsline {subsubsection}{\numberline {8.5.3}Obtención de todas las tablas de la base de datos}{33}{subsubsection.8.5.3}%
-\contentsline {subsection}{\numberline {8.6}Código vulnerable del login}{34}{subsection.8.6}%
-\contentsline {subsubsection}{\numberline {8.6.1}Código vulnerable en Oracle}{34}{subsubsection.8.6.1}%
-\contentsline {subsubsection}{\numberline {8.6.2}Versión segura del código en Oracle}{35}{subsubsection.8.6.2}%
-\contentsline {subsubsection}{\numberline {8.6.3}Código vulnerable en Postgre}{35}{subsubsection.8.6.3}%
-\contentsline {subsubsection}{\numberline {8.6.4}Versión segura del código en Postgre}{36}{subsubsection.8.6.4}%
-\contentsline {section}{\numberline {9}Inyección basada en Booleanos}{36}{section.9}%
-\contentsline {subsection}{\numberline {9.1}Mecanismo del ataque}{36}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}Obtención del número de carácteres de un campo}{38}{subsection.9.2}%
-\contentsline {subsection}{\numberline {9.3}Obtención de un carácter específico de un campo}{39}{subsection.9.3}%
-\contentsline {subsection}{\numberline {9.4}Código utilizado en el laboratorio}{41}{subsection.9.4}%
-\contentsline {subsection}{\numberline {9.5}Excepción de las inyecciones Boolean en PostgreSQL}{41}{subsection.9.5}%
-\contentsline {section}{\numberline {10}Inyecciones Blind en SQL}{42}{section.10}%
-\contentsline {subsection}{\numberline {10.1}Características principales de las inyecciones Blind}{42}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}Tipos de inyecciones Blind}{42}{subsection.10.2}%
-\contentsline {subsection}{\numberline {10.3}Objetivos de las inyecciones Blind}{43}{subsection.10.3}%
-\contentsline {subsection}{\numberline {10.4}Ejemplo básico de una inyección Blind basada en booleanos}{43}{subsection.10.4}%
-\contentsline {subsection}{\numberline {10.5}Importancia de prevenir este tipo de ataques}{43}{subsection.10.5}%
-\contentsline {section}{\numberline {11}Inyección Blind basada en condiciones booleanas}{43}{section.11}%
-\contentsline {section}{\numberline {12}Inyección Blind basada en tiempo}{43}{section.12}%
-\contentsline {subsection}{\numberline {12.1}¿Cómo Funciona?}{44}{subsection.12.1}%
-\contentsline {subsection}{\numberline {12.2}Ejemplo Práctico}{44}{subsection.12.2}%
-\contentsline {subsection}{\numberline {12.3}Inyecciones implementadas}{45}{subsection.12.3}%
+\contentsline {section}{\numberline {1}Introducción al proyecto}{4}{section.1}%
+\contentsline {section}{\numberline {2}Inyección SQL}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}¿Qué es una inyección SQL?}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Causa principal de las inyecciones SQL}{6}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Tipos de inyecciones SQL}{8}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Preparación del entorno}{9}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Prerequisitos}{9}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Requerimientos de ejecución}{9}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Conexión de la base de datos}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Oracle}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}PostgreSQL}{11}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Creación de tablas}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Oracle}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}PostgreSQL}{13}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Introducción al laboratorio}{14}{section.6}%
+\contentsline {section}{\numberline {7}Inyección basada en errores de la base de datos}{15}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Mecanismo del Ataque}{15}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Login sin credenciales válidas}{16}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Información sobre las tablas}{18}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Información sobre las columnas de una tabla}{19}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Código vulnerable del login en Oracle}{20}{subsection.7.5}%
+\contentsline {subsubsection}{\numberline {7.5.1}Inicio de la Función}{20}{subsubsection.7.5.1}%
+\contentsline {subsubsection}{\numberline {7.5.2}Conexión a la Base de Datos}{20}{subsubsection.7.5.2}%
+\contentsline {subsubsection}{\numberline {7.5.3}Construcción de la Consulta SQL}{21}{subsubsection.7.5.3}%
+\contentsline {subsubsection}{\numberline {7.5.4}Ejecución de la Consulta}{21}{subsubsection.7.5.4}%
+\contentsline {subsubsection}{\numberline {7.5.5}Cierre de la Conexión}{22}{subsubsection.7.5.5}%
+\contentsline {subsubsection}{\numberline {7.5.6}Verificación del Usuario}{22}{subsubsection.7.5.6}%
+\contentsline {subsubsection}{\numberline {7.5.7}Manejo de Errores}{22}{subsubsection.7.5.7}%
+\contentsline {subsubsection}{\numberline {7.5.8}Resumen de Problemas de Seguridad}{23}{subsubsection.7.5.8}%
+\contentsline {subsubsection}{\numberline {7.5.9}Código Completo}{23}{subsubsection.7.5.9}%
+\contentsline {subsection}{\numberline {7.6}Código vulnerable del login en PostgreSQL}{23}{subsection.7.6}%
+\contentsline {subsubsection}{\numberline {7.6.1}Inicio de la Función}{24}{subsubsection.7.6.1}%
+\contentsline {subsubsection}{\numberline {7.6.2}Conexión a la Base de Datos}{24}{subsubsection.7.6.2}%
+\contentsline {subsubsection}{\numberline {7.6.3}Construcción de la Consulta SQL}{24}{subsubsection.7.6.3}%
+\contentsline {subsubsection}{\numberline {7.6.4}Ejecución de la Consulta}{24}{subsubsection.7.6.4}%
+\contentsline {subsubsection}{\numberline {7.6.5}Cierre de la Conexión}{25}{subsubsection.7.6.5}%
+\contentsline {subsubsection}{\numberline {7.6.6}Verificación del Usuario}{25}{subsubsection.7.6.6}%
+\contentsline {subsubsection}{\numberline {7.6.7}Manejo de Errores}{26}{subsubsection.7.6.7}%
+\contentsline {subsubsection}{\numberline {7.6.8}Resumen de Problemas de Seguridad}{26}{subsubsection.7.6.8}%
+\contentsline {subsubsection}{\numberline {7.6.9}Código Completo}{26}{subsubsection.7.6.9}%
+\contentsline {subsection}{\numberline {7.7}Diferenciación con PostgreSQL}{27}{subsection.7.7}%
+\contentsline {section}{\numberline {8}Inyección basada en Union Attack}{27}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Mecanismo del ataque}{27}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Obtención de nombre de la base de datos}{28}{subsection.8.2}%
+\contentsline {subsubsection}{\numberline {8.2.1}Explicación del funcionamiento}{29}{subsubsection.8.2.1}%
+\contentsline {subsection}{\numberline {8.3}Obtención de la versión de la base de datos}{29}{subsection.8.3}%
+\contentsline {subsubsection}{\numberline {8.3.1}Explicación del funcionamiento}{30}{subsubsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.4}Obtención de todas las tablas de la base de datos}{31}{subsection.8.4}%
+\contentsline {subsubsection}{\numberline {8.4.1}Explicación del funcionamiento}{32}{subsubsection.8.4.1}%
+\contentsline {subsection}{\numberline {8.5}Diferencias de las inyecciones en PostgreSQL}{34}{subsection.8.5}%
+\contentsline {subsubsection}{\numberline {8.5.1}Obtención del nombre de la base de datos}{34}{subsubsection.8.5.1}%
+\contentsline {subsubsection}{\numberline {8.5.2}Obtención de la versión de la base de datos}{35}{subsubsection.8.5.2}%
+\contentsline {subsubsection}{\numberline {8.5.3}Obtención de todas las tablas de la base de datos}{36}{subsubsection.8.5.3}%
+\contentsline {subsection}{\numberline {8.6}Código vulnerable del login}{37}{subsection.8.6}%
+\contentsline {subsubsection}{\numberline {8.6.1}Código vulnerable en Oracle}{37}{subsubsection.8.6.1}%
+\contentsline {subsubsection}{\numberline {8.6.2}Versión segura del código en Oracle}{38}{subsubsection.8.6.2}%
+\contentsline {subsubsection}{\numberline {8.6.3}Código vulnerable en Postgre}{38}{subsubsection.8.6.3}%
+\contentsline {subsubsection}{\numberline {8.6.4}Versión segura del código en Postgre}{39}{subsubsection.8.6.4}%
+\contentsline {section}{\numberline {9}Inyección basada en Booleanos}{39}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Mecanismo del ataque}{40}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Obtención del número de carácteres de un campo}{41}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Obtención de un carácter específico de un campo}{43}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Código utilizado en el laboratorio}{44}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Excepción de las inyecciones Boolean en PostgreSQL}{45}{subsection.9.5}%
+\contentsline {section}{\numberline {10}Inyecciones Blind en SQL}{45}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Características principales de las inyecciones Blind}{45}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Tipos de inyecciones Blind}{46}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Objetivos de las inyecciones Blind}{46}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}Ejemplo básico de una inyección Blind basada en booleanos}{46}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}Importancia de prevenir este tipo de ataques}{47}{subsection.10.5}%
+\contentsline {section}{\numberline {11}Inyección Blind basada en condiciones booleanas}{47}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Entendiendo la inyección}{50}{subsection.11.1}%
+\contentsline {subsubsection}{\numberline {11.1.1}Payload válido (condición TRUE)}{50}{subsubsection.11.1.1}%
+\contentsline {subsubsection}{\numberline {11.1.2}Payload inválido (condición FALSE)}{50}{subsubsection.11.1.2}%
+\contentsline {subsubsection}{\numberline {11.1.3}Explicación del funcionamiento}{51}{subsubsection.11.1.3}%
+\contentsline {subsection}{\numberline {11.2}Obtención de la longitud de un campo de la base de datos}{51}{subsection.11.2}%
+\contentsline {subsubsection}{\numberline {11.2.1}Payload para una condición TRUE}{52}{subsubsection.11.2.1}%
+\contentsline {subsubsection}{\numberline {11.2.2}Payload para una condición FALSE}{52}{subsubsection.11.2.2}%
+\contentsline {subsubsection}{\numberline {11.2.3}Explicación del funcionamiento}{53}{subsubsection.11.2.3}%
+\contentsline {subsection}{\numberline {11.3}Obtención de un carácter específico de un campo de la base de datos}{54}{subsection.11.3}%
+\contentsline {subsubsection}{\numberline {11.3.1}Payload para una condición TRUE}{54}{subsubsection.11.3.1}%
+\contentsline {subsubsection}{\numberline {11.3.2}Payload para una condición FALSE}{55}{subsubsection.11.3.2}%
+\contentsline {subsubsection}{\numberline {11.3.3}Explicación del funcionamiento}{55}{subsubsection.11.3.3}%
+\contentsline {subsection}{\numberline {11.4}Diferencias de las inyecciones en PostgreSQL}{56}{subsection.11.4}%
+\contentsline {subsubsection}{\numberline {11.4.1}Obtención de la longitud de un campo}{56}{subsubsection.11.4.1}%
+\contentsline {paragraph}{Inyección que devuelve TRUE}{56}{section*.35}%
+\contentsline {paragraph}{Inyección que devuelve FALSE}{57}{section*.36}%
+\contentsline {subsubsection}{\numberline {11.4.2}Obtención de un carácter específico de un campo}{57}{subsubsection.11.4.2}%
+\contentsline {paragraph}{Inyección que devuelve TRUE}{57}{section*.37}%
+\contentsline {paragraph}{Inyección que devuelve FALSE}{57}{section*.38}%
+\contentsline {subsubsection}{\numberline {11.4.3}Resumen de las diferencias entre Oracle y PostgreSQL}{58}{subsubsection.11.4.3}%
+\contentsline {subsection}{\numberline {11.5}Código vulnerable del login}{58}{subsection.11.5}%
+\contentsline {subsubsection}{\numberline {11.5.1}Código vulnerable en Oracle}{58}{subsubsection.11.5.1}%
+\contentsline {subsubsection}{\numberline {11.5.2}Versión segura del código en Oracle}{59}{subsubsection.11.5.2}%
+\contentsline {subsubsection}{\numberline {11.5.3}Código vulnerable en PostgreSQL}{60}{subsubsection.11.5.3}%
+\contentsline {subsubsection}{\numberline {11.5.4}Versión segura del código en PostgreSQL}{60}{subsubsection.11.5.4}%
+\contentsline {subsection}{\numberline {11.6}Automatización de inyecciones Blind Boolean}{61}{subsection.11.6}%
+\contentsline {subsubsection}{\numberline {11.6.1}Construcción de la inyección SQL}{61}{subsubsection.11.6.1}%
+\contentsline {subsubsection}{\numberline {11.6.2}Envío de la inyección y análisis de la respuesta}{62}{subsubsection.11.6.2}%
+\contentsline {subsubsection}{\numberline {11.6.3}Determinación de la longitud de un campo}{63}{subsubsection.11.6.3}%
+\contentsline {subsubsection}{\numberline {11.6.4}Extracción del valor carácter por carácter}{63}{subsubsection.11.6.4}%
+\contentsline {subsubsection}{\numberline {11.6.5}Menú interactivo y flujo principal}{64}{subsubsection.11.6.5}%
+\contentsline {section}{\numberline {12}Inyección Blind basada en tiempo}{65}{section.12}%
+\contentsline {subsection}{\numberline {12.1}¿Cómo Funciona?}{65}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Ejemplo Práctico}{65}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Inyecciones implementadas}{66}{subsection.12.3}%
+\contentsline {section}{\numberline {13}Conclusiones}{68}{section.13}%
+\contentsline {section}{\numberline {14}Anexo}{70}{section.14}%
+\contentsline {subsection}{\numberline {14.1}Código completo del script}{70}{subsection.14.1}%
+\contentsline {subsection}{\numberline {14.2}Ejecución completa del script dumpeando usuarios}{75}{subsection.14.2}%
+\contentsline {subsection}{\numberline {14.3}Ejecución completa del script dumpeando contraseñas}{79}{subsection.14.3}%
+\contentsline {section}{\numberline {15}Bibliografía}{85}{section.15}%

