@@ -1,1 +1,0 @@
-3. Preparar inyecciones para las boolean (no blind)
