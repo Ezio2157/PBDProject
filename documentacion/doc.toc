@@ -108,16 +108,22 @@
 \contentsline {subsection}{\numberline {12.3}Ejemplo Práctico}{68}{subsection.12.3}%
 \contentsline {subsection}{\numberline {12.4}Inyecciones implementadas}{68}{subsection.12.4}%
 \contentsline {subsection}{\numberline {12.5}Script Implementado}{71}{subsection.12.5}%
-\contentsline {subsubsection}{\numberline {12.5.1}Código del Script}{72}{subsubsection.12.5.1}%
-\contentsline {subsubsection}{\numberline {12.5.2}Resultados de los Ataques}{76}{subsubsection.12.5.2}%
-\contentsline {subsection}{\numberline {12.6}Posible método de ataque en Oracle}{76}{subsection.12.6}%
-\contentsline {subsubsection}{\numberline {12.6.1}Estrategia General}{77}{subsubsection.12.6.1}%
-\contentsline {subsubsection}{\numberline {12.6.2}Ejemplo Práctico}{77}{subsubsection.12.6.2}%
-\contentsline {subsubsection}{\numberline {12.6.3}Uso Limitado de \texttt {DBMS\_LOCK.SLEEP}}{78}{subsubsection.12.6.3}%
-\contentsline {subsubsection}{\numberline {12.6.4}Limitaciones y Consideraciones}{78}{subsubsection.12.6.4}%
-\contentsline {section}{\numberline {13}Conclusiones}{78}{section.13}%
-\contentsline {section}{\numberline {14}Anexo}{80}{section.14}%
-\contentsline {subsection}{\numberline {14.1}Código completo del script}{80}{subsection.14.1}%
-\contentsline {subsection}{\numberline {14.2}Ejecución completa del script dumpeando usuarios}{85}{subsection.14.2}%
-\contentsline {subsection}{\numberline {14.3}Ejecución completa del script dumpeando contraseñas}{89}{subsection.14.3}%
-\contentsline {section}{\numberline {15}Bibliografía}{95}{section.15}%
+\contentsline {subsubsection}{\numberline {12.5.1}Código del Script Principal}{72}{subsubsection.12.5.1}%
+\contentsline {subsubsection}{\numberline {12.5.2}Código del Diccionario de Inyecciones}{75}{subsubsection.12.5.2}%
+\contentsline {subsubsection}{\numberline {12.5.3}Resultados de los Ataques}{77}{subsubsection.12.5.3}%
+\contentsline {subsection}{\numberline {12.6}Posible método de ataque en Oracle}{78}{subsection.12.6}%
+\contentsline {subsubsection}{\numberline {12.6.1}Estrategia General}{78}{subsubsection.12.6.1}%
+\contentsline {subsubsection}{\numberline {12.6.2}Ejemplo Práctico}{79}{subsubsection.12.6.2}%
+\contentsline {subsubsection}{\numberline {12.6.3}Uso Limitado de \texttt {DBMS\_LOCK.SLEEP}}{79}{subsubsection.12.6.3}%
+\contentsline {subsubsection}{\numberline {12.6.4}Limitaciones y Consideraciones}{79}{subsubsection.12.6.4}%
+\contentsline {section}{\numberline {13}Conclusiones}{80}{section.13}%
+\contentsline {section}{\numberline {14}Anexo}{82}{section.14}%
+\contentsline {subsection}{\numberline {14.1}Código completo del script de inyecciones \textit {Blind Boolean}}{82}{subsection.14.1}%
+\contentsline {subsection}{\numberline {14.2}Ejecución completa del script dumpeando usuarios}{86}{subsection.14.2}%
+\contentsline {subsection}{\numberline {14.3}Ejecución completa del script dumpeando contraseñas}{90}{subsection.14.3}%
+\contentsline {subsection}{\numberline {14.4}Código completo del script de Inyecciones Blind basadas en tiempo}{96}{subsection.14.4}%
+\contentsline {subsection}{\numberline {14.5}Código completo del servidor de Python Flask}{98}{subsection.14.5}%
+\contentsline {subsection}{\numberline {14.6}Código completo setupOracle.py}{102}{subsection.14.6}%
+\contentsline {subsection}{\numberline {14.7}Código completo setupPostgreSQL.py}{108}{subsection.14.7}%
+\contentsline {subsection}{\numberline {14.8}Código completo del diccionario de inyecciones implementadas}{113}{subsection.14.8}%
+\contentsline {section}{\numberline {15}Bibliografía}{121}{section.15}%

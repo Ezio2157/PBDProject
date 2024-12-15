@@ -1,6 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1734269050.55081 "c:/Users/bofil/Desktop/UEX/PBD/Nuevo_PBD_PROJECT/PBDProject/documentacion/doc.tex" "doc.pdf" "doc" 1734269055.36622 0
+["pdflatex"] 1734282404.11018 "c:/Users/bofil/Desktop/UEX/PBD/Nuevo_PBD_PROJECT/PBDProject/documentacion/doc.tex" "doc.pdf" "doc" 1734282409.42647 0
   "C:/Users/bofil/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1733994960 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
+  "C:/Users/bofil/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbi1440.pk" 1734282078 52860 ce7f30ee2ae0b73bfeb60332c7e30fcf ""
   "C:/Users/bofil/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1200.pk" 1733999294 31952 80c249399b029dd32979608cf501c425 ""
   "C:/Users/bofil/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1440.pk" 1733999293 40136 a956a040e3c5bcf5089c5b184827193a ""
   "C:/Users/bofil/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1728.pk" 1733994965 49100 bc4fc141da85a0a3e83a090d70e4cb78 ""
@@ -16,6 +17,7 @@
   "C:/Users/bofil/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1200.pk" 1733999290 24152 b709e0fc0d32cd651355723b9c83d0ba ""
   "C:/Users/bofil/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk" 1734174751 14064 0b5805715842f1c533715adff04ad12e ""
   "C:/Users/bofil/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1733994866 24225047 cbc0a5c0fc0abc45eacafcb9ec1ecee1 ""
+  "C:/Users/bofil/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/ecbi1440.tfm" 993061910 2900 15d3edf4241a2c0d5dfa9dcf42f04603 ""
   "C:/Users/bofil/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/ecbx1200.tfm" 993061958 3200 b8d69bc738e5ef3e08cefeef3109ff56 ""
   "C:/Users/bofil/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/ecbx1440.tfm" 993061960 3196 0b37fa3083e15c57cfa8c4ff52f2807a ""
   "C:/Users/bofil/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/ecbx1728.tfm" 993061962 3204 d35cb76836b6cb4ed404dd64a550530d ""
@@ -154,11 +156,11 @@
   "Imagenes/union7.png" 1734174732 14125 f3eab25c40373fe8435858493de4f714 ""
   "Imagenes/union8.png" 1734174732 15240 28309d37842cab9ec950d29826cb9822 ""
   "Imagenes/union9.png" 1734174732 15752 474a6351dab34b2f089fc0a270dbac6d ""
-  "c:/Users/bofil/Desktop/UEX/PBD/Nuevo_PBD_PROJECT/PBDProject/documentacion/doc.tex" 1734269054 193472 dff914d37843c9186c3acdab0432302a ""
-  "doc.aux" 1734269054 25062 eb5f72e3ae78ec92f64bf687d76d81f6 "pdflatex"
-  "doc.out" 1734269054 26835 739a1a09733e443f16a83f81a5ce8bfd "pdflatex"
-  "doc.tex" 1734269054 193472 dff914d37843c9186c3acdab0432302a ""
-  "doc.toc" 1734269054 12435 1f1afcd764b4970b7ae90efe0eddf4ab "pdflatex"
+  "c:/Users/bofil/Desktop/UEX/PBD/Nuevo_PBD_PROJECT/PBDProject/documentacion/doc.tex" 1734282398 242149 dafded0663d39f1deef0d8c95b50f8d1 ""
+  "doc.aux" 1734282409 26063 b66e8f5edb0a92c2bc6cd9056d925d70 "pdflatex"
+  "doc.out" 1734282409 28876 2344c73379fd4dd6805e42e5a7c1c7ae "pdflatex"
+  "doc.tex" 1734282398 242149 dafded0663d39f1deef0d8c95b50f8d1 ""
+  "doc.toc" 1734282409 13188 572930a801bf2d6d37d9739e9c4a0d7b "pdflatex"
   (generated)
   "doc.aux"
   "doc.log"
