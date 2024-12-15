@@ -791,6 +791,45 @@ en el caso de una posible ejecución usando el SGBD de Oracle se produciria el s
     \caption{Resultado de la inyección para información sobre las columnas de una tabla}
 \end{figure}
 
+
+\subsection{Información sobre el SGBD}
+
+En la siguiente inyección se va a mostrar como se puede obtener información sobre el SGBD que se esta utilizando,
+en este caso se va a obtener el nombre del SGBD que se esta utilizando.
+Para realizar dicha inyección en el selector de inyecciones de la derecha,
+debajo de las tarjetas de información relevante se deberá seleccionar el tipo de inyección "Información sobre el SGBD"
+y muestra la siguiente información para introducir en los campos \textbf{Usuario} y \textbf{Contraseña}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error9.png}
+    \caption{Datos a introducir en los campos del formulario}
+\end{figure}
+
+En el código de inyección para el campo de la usuario en el formulario,
+a partir de la capacidad de SQL de poder trabajar con lógica booleana se inyecta la busqueda de la información de una función
+que se sospecha que no exista, para forzar al sistema que devuelva un error y muestre la información del error que se ha producido,
+lo que hace que al conocer el error se pueda inferir información sobre el tipo de base de datos sobre la que se esta trabajando.
+
+\begin{lstlisting}[language=SQL]
+    SELECT * FROM Usuarios WHERE username = '' OR version() = 'PostgreSQL' --' AND password = 'cualquier_input'
+\end{lstlisting}
+
+Siguiendo con la linea definida en las inyecciones anteriores,
+se ha implementado una función en el código de la aplicación que permita mostrar este tipo inyección,
+denominada "login\_inseguro\_errors\_oracle".
+
+De manera muy similar a como a sido definido en el caso anterior, la inyección no devuelve directamente en el login un error de inicio de sesión,
+ya que la lógica de la sentencia es correcta por lo que en el login no se mostraria retroalimentación del error. Sin embargo,
+en la sección de la derecha donde se muestra la información de la inyección, se puede observar la sentencia SQL total ejecutada y el error que se ha producido,
+en el caso de una posible ejecución usando el SGBD de Oracle se produciria el siguiente error:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Imagenes/error10.png}
+    \caption{Resultado de la inyección para información sobre el SGBD}
+\end{figure}
+
 \subsection{Código vulnerable del login en Oracle}
 Esta función \texttt{login\_inseguro\_errors\_oracle} intenta realizar la autenticación de un usuario verificando su nombre de usuario y contraseña en una base de datos Oracle. A continuación, explicamos cada parte de la función en detalle.
 
@@ -1099,11 +1138,14 @@ def login_inseguro_errors_postgresql(username, password):
 
 \subsection{Diferenciación con PostgreSQL}
 
-Todos los tipos de inyección usan las mismas
+En el caso de esta inyección, la lógica de explotación es la misma para ambas bases de datos, pero el resultado producido por el error va a ser distinto
+ya que en el caso de Oracle el formato de error será distinto a como se presenta en PostgreSQL. En el caso particular de la inyección 
+para obtener información acerca del SGBD sobre el que esté trabajando el formulario de inicio de sesión, se usa una función propia de PostgreSQL,
+por lo que en el caso de querer inyectar dicha funcion sobre Oracle si que producirá error como tal, mientras que como se puede entender,
+en PostgreSQL no lo dará interpretando que al no haber error ni resultado significativo, se trata de una base de datos de tipo PostgreSQL 
+(usando la lógica inversa que se ha seguido hasta ahora en este tipo inyección, es decir si no hay error, también es posible inferir información).
 
-
-
-
+%-----------------------------------------------------------------
 
 \section{Inyección basada en Union Attack}
 La inyección SQL basada en \textbf{UNION} es una técnica en la que un atacante utiliza la cláusula UNION para combinar los resultados de una consulta legítima con datos maliciosamente solicitados, permitiendo extraer información sensible de la base de datos. 
